@@ -136,60 +136,6 @@ def test(model, testLoader):
         )
     return accurary.avg
 
-'''
-步骤1：初始化种群：初始化各个参数，蜂群总数SN、食物源被采集次数即最大迭代次数MCN及控制参数limit，确定问题搜索范围，并且在搜索范围内随机产生初始解xi(i=1,2,...SN) 。
-
-步骤2：计算并评估每个初始解的适应度。
-
-步骤3：设定循环条件并开始循环
-
-步骤4：引领蜂对解xi按照式（2-3）进行邻域搜索产生新解（食物源）vi，并计算其适应度值；
-
-步骤5：按照式(2-7)进行贪婪选择：如果vi的适应度值优于xi，则利用vi替换xi，将vi作为当前最好的解，否则保留xi不变；
-
-步骤6：根据式(2-4)计算食物源的概率pi；
-
-步骤7：跟随蜂依照概率pi选择解或食物源，按照式(2-3)搜索产生新解（食物源）vi，并计算其适应度。
-
-步骤8：按式(2-7)进行贪婪选择；如果vi的适应度优于xi，则用vi代替xi，将vi作为当前最好解，否则保留xi不变；
-
-步骤9：判断是否有要放弃的解。若有，则侦查蜂按式(2-5)随机产生新解将其替换；
-
-步骤10：记录到目前为止的最优解；
-
-步骤11：判断是否满足循环终止条件，若满足，循环结束，输出最优解，否则返回步骤4继续搜索。
-
-parser.add_argument(
-    '--max_preserve',
-    type=int,
-    default=9,
-    help='Minimum percent of prune per layer'
-)
-
-parser.add_argument(
-    '--food_number',
-    type=int,
-    default=50,
-    help='Food number'
-)
-
-parser.add_argument(
-    '--food_dimension',
-    type=int,
-    default=13,
-    help='Food dimension: num of conv layers. default: vgg16->13 conv layer to be pruned'
-)    
-
-parser.add_argument(
-    '--food_limit',
-    type=int,
-    default=5,
-    help='Beyond this limit, the bee has not been renewed to become a scout bee'
-)
-'''
-
-#random.randint(1,args.max_preserve)
-#random.random(-1,1)
 
 def calculationFitness(honey, train_loader, args):
     if arg.arch == 'vgg':
