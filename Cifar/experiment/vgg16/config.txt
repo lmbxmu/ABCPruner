@@ -1,0 +1,28 @@
+2019-12-07-22:32:58
+
+gpus: [0]
+data_set: cifar10
+data_path: /home/lmb/cvpr_vgg2/data
+job_dir: ./experiment/vgg16
+reset: False
+resume: None
+refine: None
+arch: vgg
+cfg: vgg16
+num_epochs: 150
+train_batch_size: 256
+eval_batch_size: 100
+momentum: 0.9
+lr: 0.01
+lr_decay_step: [75, 112]
+weight_decay: 0.0005
+random_rule: random_pretrain
+test_only: False
+honey_model: ./experience/vgg16/baseline/checkpoint/vgg16_cifar10.pt
+calfitness_epoch: 2
+max_cycle: 50
+max_preserve: 9
+food_number: 10
+food_dimension: 13
+food_limit: 5
+

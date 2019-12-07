@@ -30,7 +30,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-	'--data_set'.
+	'--data_set',
 	type=str,
 	default='cifar10',
 	help='Select dataset to train. default:cifar10',
@@ -39,7 +39,7 @@ parser.add_argument(
 parser.add_argument(
 	'--data_path',
 	type=str,
-	default='',
+	default='/home/lmb/cvpr_vgg2/data',
 	help='The dictionary where the input is stored. default:',
 )
 
@@ -95,7 +95,7 @@ parser.add_argument(
 parser.add_argument(
     '--train_batch_size',
     type=int,
-    default=128,
+    default=256,
     help='Batch size for training. default:128'
 )
 
@@ -163,7 +163,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '--maxcycle',
+    '--max_cycle',
     type=int,
     default=1000,
     help='Search for best pruning plan times. default:1000'
@@ -196,6 +196,8 @@ parser.add_argument(
     default=5,
     help='Beyond this limit, the bee has not been renewed to become a scout bee'
 )
+
+args = parser.parse_args()
 
 if args.resume is not None and not os.path.isfile(args.resume):
     raise ValueError('No checkpoint found at {} to resume'.format(args.resume))

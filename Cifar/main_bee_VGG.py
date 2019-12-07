@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from model.googlenet import Inception
+#from model.googlenet import Inception
 from utils.options import args
 import utils.common as utils
 
@@ -17,13 +17,15 @@ device = torch.device(f"cuda:{args.gpus[0]}") if torch.cuda.is_available() else 
 logger = utils.get_logger(os.path.join(args.job_dir + 'logger.log'))
 checkpoint = utils.checkpoint(args)
 loss_func = nn.CrossEntropyLoss()
+
 # Data
+print('==> Loading Data..')
 if args.data_set == 'cifar10':
     loader = cifar10.Data(args)
     class_num = 10
 else:
     loader = cifar100.Data(args)
-        class_num = 100
+    class_num = 100
 
 global best_honey, NectraSource, EmployedBee, OnLooker
 
@@ -31,28 +33,31 @@ global best_honey, NectraSource, EmployedBee, OnLooker
 
 #load pre-train params
 def load_vgg_honey_model(model, random_rule):
-	if args.honey_model is None or not os.path.exists(args.honey_model):
-		raise ('Honey_model path should be exist!')
-	ckpt = torch.load(args.honey_model, map_location=device)
-	origin_model = import_module(f'model.{args.arch}').VGG(args.cfg).to(device)
-	origin_model.load_state_dict(ckpt['state_dict'])
-	oristate_dict = origin_model.state_dict()
-	state_dict = model.state_dict()
+    if args.honey_model is None or not os.path.exists(args.honey_model):
+        raise ('Honey_model path should be exist!')
+    ckpt = torch.load(args.honey_model, map_location=device)
+    #print(ckpt['state_dict'])
+    origin_model = import_module(f'model.{args.arch}').VGG(args.cfg).to(device)
+    origin_model.load_state_dict(ckpt['state_dict'])
+    oristate_dict = origin_model.state_dict()
+    state_dict = model.state_dict()
 
-	last_select_index = None #Conv index selected in the previous layer
 
-	for name, module in model.named_modules():
 
-		if isinstance(module, nn.Conv2d):
+    last_select_index = None #Conv index selected in the previous layer
 
-			oriweight = oristate_dict[name + '.weight']
-			curweight = state_dict[name + '.weight']
-			orifilter_num = oriweight.size(0)
-			currentfilter_num = curweight.size(0)
+    for name, module in model.named_modules():
 
-			if orifilter_num != currentfilter_num and (random_rule == 'random_pretrain' or random_rule == 'l1_pretrain'):
+        if isinstance(module, nn.Conv2d):
 
-				select_num = currentfilter_num
+            oriweight = oristate_dict[name + '.weight']
+            curweight = state_dict[name + '.weight']
+            orifilter_num = oriweight.size(0)
+            currentfilter_num = curweight.size(0)
+
+            if orifilter_num != currentfilter_num and (random_rule == 'random_pretrain' or random_rule == 'l1_pretrain'):
+
+                select_num = currentfilter_num
                 if random_rule == 'random_pretrain':
                     select_index = random.sample(range(0, orifilter_num-1), select_num)
                     select_index.sort()
@@ -60,19 +65,22 @@ def load_vgg_honey_model(model, random_rule):
                     l1_sum = list(torch.sum(torch.abs(oriweight), [1, 2, 3]))
                     select_index = list(map(l1_sum.index, heapq.nlargest(currentfilter_num, l1_sum)))
                     select_index.sort()
-
                 if last_select_index is not None:
-                	for index_i, i in enumerate(select_index):
-                		for index_j, j in enumerate(last_select_index):
-                			state_dict[name + '.weight'][index_i][index_j] = oristate_dict[name + '.weight'][i][j]
+                    for index_i, i in enumerate(select_index):
+                        for index_j, j in enumerate(last_select_index):
+                            state_dict[name + '.weight'][index_i][index_j] = \
+                                oristate_dict[name + '.weight'][i][j]
                 else:
                     for index_i, i in enumerate(select_index):
-                        state_dict[name + '.weight'][index_i] = oristate_dict[name + '.weight'][i]
+                        state_dict[name + '.weight'][index_i] = \
+                            oristate_dict[name + '.weight'][i]
 
-                last_select_index = select_index	
+                last_select_index = select_index
+
             else:
                 state_dict[name + '.weight'] = oriweight
                 last_select_index = None
+
     model.load_state_dict(state_dict)
 
 # Training
@@ -119,6 +127,7 @@ def test(model, testLoader):
     accurary = utils.AverageMeter()
 
     start_time = time.time()
+
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(testLoader):
             inputs, targets = inputs.to(device), targets.to(device)
@@ -138,8 +147,8 @@ def test(model, testLoader):
 
 
 def calculationFitness(honey, train_loader, args):
-    if arg.arch == 'vgg':
-        model = import_module(f'model.{args.arch}'. BeeVGG(args.cfg, honeysource=honey).to(device))
+    if args.arch == 'vgg':
+        model = import_module(f'model.{args.arch}'). BeeVGG(args.cfg, honeysource=honey).to(device)
         load_vgg_honey_model(model, args.random_rule)
     elif args.arch == 'resnet':
         pass
@@ -151,18 +160,20 @@ def calculationFitness(honey, train_loader, args):
     model.train()
     losses = utils.AverageMeter()
     accurary = utils.AverageMeter()
+
+    start_time = time.time()
     if len(args.gpus) != 1:
         model = nn.DataParallel(model, device_ids=args.gpus)
 
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-
-    for epoch in args.calfitness_epoch:
+    
+    for epoch in range(args.calfitness_epoch):
         for batch, (inputs, targets) in enumerate(train_loader):
 
             inputs, targets = inputs.to(device), targets.to(device)
             optimizer.zero_grad()
             output = model(inputs)
-             loss = loss_func(output, targets)
+            loss = loss_func(output, targets)
             loss.backward()
             losses.update(loss.item(), inputs.size(0))
             optimizer.step()
@@ -170,78 +181,93 @@ def calculationFitness(honey, train_loader, args):
             prec1 = utils.accuracy(output, targets)
             accurary.update(prec1[0], inputs.size(0))
 
+    current_time = time.time()
+    '''
+    logger.info(
+            'Honey Source fintness {:.2f}%\t\tTime {:.2f}s\n'
+            .format(float(accurary.avg), (current_time - start_time))
+        )
+    '''
+
     return accurary.avg
 
-class BeeGroup(object):
+class BeeGroup():
     """docstring for BeeGroup"""
-    def __init__(self, arg):
+    def __init__(self):
         super(BeeGroup, self).__init__() 
         self.code = [] #size : num of conv layers  value:{1,2,3,4,5,6,7,8,9,10}
         self.fitness = 0
         self.rfitness = 0 #相对适应值比例  
-        self.trail = 0 #表示实验的次数，用于与limit作比较
+        self.trail = 0 #表示实验的次数，用于与limit作比较`
 
 def initilize():
+    print('==> Initilizing Honey_model..')
+    global best_honey, NectraSource, EmployedBee, OnLooker
+
     for i in range(args.food_number):
         NectraSource.append(BeeGroup())
         EmployedBee.append(BeeGroup())
+        OnLooker.append(BeeGroup())
         for j in range(args.food_dimension):
             NectraSource[i].code.append(random.randint(1,args.max_preserve))
-            EmployBee[i].code.append(NectraSource[0].code[j])
+            EmployedBee[i].code.append(NectraSource[0].code[j])
             OnLooker[i].code.append(NectraSource[0].code[j])
             best_honey.code.append(NectraSource[0].code[j])
 
         #initilize honey souce
-        NectraSource[i].fitness = calculationFitness(NectraSource.code, loader.trainLoader, args)
+        NectraSource[i].fitness = calculationFitness(NectraSource[i].code, loader.trainLoader, args)
         NectraSource[i].rfitness = 0
         NectraSource[i].trail = 0
 
         #initilize employed bee  
-        EmployedBee[i].fitness=NectarSource[i].fitness 
-        EmployedBee[i].rfitness=NectarSource[i].rfitness 
-        EmployedBee[i].trail=NectarSource[i].trail
+        EmployedBee[i].fitness=NectraSource[i].fitness 
+        EmployedBee[i].rfitness=NectraSource[i].rfitness 
+        EmployedBee[i].trail=NectraSource[i].trail
 
         #initilize onlooker 
-        OnLooker[i].fitness=NectarSource[i].fitness 
-        OnLooker[i].rfitness=NectarSource[i].rfitness 
-        OnLooker[i].trail=NectarSource[i].trail
+        OnLooker[i].fitness=NectraSource[i].fitness 
+        OnLooker[i].rfitness=NectraSource[i].rfitness 
+        OnLooker[i].trail=NectraSource[i].trail
 
         #initilize best honey
-        best_honey.fitness=NectarSource[i].fitness 
-        best_honey.rfitness=NectarSource[i].rfitness 
-        best_honey.trail=NectarSource[i].trail
+        best_honey.fitness=NectraSource[i].fitness 
+        best_honey.rfitness=NectraSource[i].rfitness 
+        best_honey.trail=NectraSource[i].trail
 
 def sendEmployedBees():
+    global best_honey, NectraSource, EmployedBee, OnLooker
     for i in range(args.food_number):
-        param2change = random.randint(1, args.food_dimension)
+        param2change = random.randint(0, args.food_dimension-1)
         while 1:
-            k = random.randint(1, args.food_number)
+            k = random.randint(0, args.food_number-1)
             if k != i:
                 break
 
-        EmployBee[i].code = NectraSource[i].code
+        EmployedBee[i].code = NectraSource[i].code
 
-        Rij = random.random(-1, 1)
-        EmployedBee[i].code[param2change] = int(NectraSource[i].code[param2change]+ Rij*(NectarSource[i].code[param2change]-NectarSource[k].code[param2change]))
-        if EmployBee[i].code[param2change] < 1:
-            EmployBee[i].code[param2change] = 1
-        if EmployBee[i].code[param2change] > args.max_preserve
-            EmployBee[i].code[param2change] = args.max_preserve
+        Rij = random.uniform(-1, 1)
+        EmployedBee[i].code[param2change] = int(NectraSource[i].code[param2change]+ Rij*(NectraSource[i].code[param2change]-NectraSource[k].code[param2change]))
+        if EmployedBee[i].code[param2change] < 1:
+            EmployedBee[i].code[param2change] = 1
+        if EmployedBee[i].code[param2change] > args.max_preserve:
+            EmployedBee[i].code[param2change] = args.max_preserve
 
-        EmployBee[i].fitness = calculationFitness(EmployBee[i].code, loader.trainloader, args)
+        EmployedBee[i].fitness = calculationFitness(EmployedBee[i].code, loader.trainLoader, args)
 
-        if EmployedBee[i].fitness > NectarSource[i].fitness:                
-            NectarSource[i].code = EmployedBee[i].code              
-            NectarSource[i].trail = 0  
-            NectarSource[i].fitness = EmployedBee[i].fitness 
+        if EmployedBee[i].fitness > NectraSource[i].fitness:                
+            NectraSource[i].code = EmployedBee[i].code              
+            NectraSource[i].trail = 0  
+            NectraSource[i].fitness = EmployedBee[i].fitness 
+            
         else:          
-            NectarSource[i].trail = NectarSource[i].trail + 1
+            NectraSource[i].trail = NectraSource[i].trail + 1
 
 def CalculateProbabilities():
+    global best_honey, NectraSource, EmployedBee, OnLooker
     
     maxfit = NectraSource[0].fitness
 
-    for i in range(1, args.food_number):
+    for i in range(0, args.food_number-1):
         if NectraSource[i].fitness > maxfit:
             maxfit = NectraSource[i].fitness
 
@@ -249,72 +275,86 @@ def CalculateProbabilities():
         NectraSource[i].rfitness = (0.9 * (NectraSource[i].fitness / maxfit)) + 0.1
 
 def sendOnlookerBees():
+    global best_honey, NectraSource, EmployedBee, OnLooker
     i = 0
     t = 0
     while t < args.food_number:
-        R_choosed = random.random(0,1)
+        R_choosed = random.uniform(0,1)
         if(R_choosed < NectraSource[i].rfitness):
             t += 1
-            param2change = random.randint(1, args.food_dimension)
+            param2change = random.randint(0, args.food_dimension-1)
             while 1:
-                k = random.randint(1, args.food_number)
+                k = random.randint(0, args.food_number-1)
                 if k != i:
                     break
             OnLooker[i].code = NectraSource[i].code
 
-            Rij = random.random(-1, 1)
-            EOnLooker[i].code[param2change] = int(NectraSource[i].code[param2change]+ Rij*(NectarSource[i].code[param2change]-NectarSource[k].code[param2change]))
+            Rij = random.uniform(-1, 1)
+            OnLooker[i].code[param2change] = int(NectraSource[i].code[param2change]+ Rij*(NectraSource[i].code[param2change]-NectraSource[k].code[param2change]))
             if OnLooker[i].code[param2change] < 1:
                 OnLooker[i].code[param2change] = 1
-            if OnLooker[i].code[param2change] > args.max_preserve
+            if OnLooker[i].code[param2change] > args.max_preserve:
                OnLooker[i].code[param2change] = args.max_preserve
 
-            OnLooker[i].fitness = calculationFitness(OnLooker[i].code, loader.trainloader, args)
+            OnLooker[i].fitness = calculationFitness(OnLooker[i].code, loader.trainLoader, args)
 
-            if OnLooker[i].fitness > NectarSource[i].fitness:                
-                NectarSource[i].code = OnLooker[i].code              
-                NectarSource[i].trail = 0  
-                NectarSource[i].fitness = OnLookeree[i].fitness 
+            if OnLooker[i].fitness > NectraSource[i].fitness:                
+                NectraSource[i].code = OnLooker[i].code              
+                NectraSource[i].trail = 0  
+                NectraSource[i].fitness = OnLooker[i].fitness 
             else:          
-                NectarSource[i].trail = NectarSource[i].trail + 1
+                NectraSource[i].trail = NectraSource[i].trail + 1
         i += 1
         if i == args.food_number:
             i = 0
 
 
 def sendScoutBees():
+    global best_honey, NectraSource, EmployedBee, OnLooker
     maxtrailindex = 0
     for i in range(1, args.food_number):
         if NectraSource[i].trail > NectraSource[maxtrailindex].trail:
             maxtrailindex = i
     if NectraSource[maxtrailindex].trail >= args.food_limit:
         for j in range(args.food_dimension):
-            R = random.random(0,1)
+            R = random.uniform(0,1)
             NectraSource[maxtrailindex].code[j] = int(R * args.max_preserve)
         NectraSource[maxtrailindex].trail = 0
-        NectraSource[maxtrailindex].fitness = calculationFitness(NectraSource[maxtrailindex].code, loader.trainloader, args )
+        NectraSource[maxtrailindex].fitness = calculationFitness(NectraSource[maxtrailindex].code, loader.trainLoader, args )
  
 def MemorizeBestSource():
+    global best_honey, NectraSource, EmployedBee, OnLooker
     for i in range(1, args.food_number):
         if NectraSource[i].fitness > best_honey.fitness:
             best_honey.code = NectraSource[i].code
             best_honey.fitness = NectraSource[i].fitness
 
 
+
 def main():
-	start_epoch = 0
-	best_acc = 0.0
+    global best_honey, NectraSource, EmployedBee, OnLooker
+    start_epoch = 0
+    best_acc = 0.0
     best_honey = BeeGroup()
     NectraSource = []
     EmployedBee = []
     OnLooker = []
 
     #ABC
+    start_time = time.time()
+
     initilize()
 
     MemorizeBestSource()
 
     for epoch in range(args.max_cycle):
+
+        current_time = time.time()
+        logger.info(
+            'Search Epoch [{}]\t\t Best Honey Source fintness {:.2f}%\t\tTime {:.2f}s\n'
+            .format(epoch, float(best_honey.fitness), (current_time - start_time))
+        )
+        start_time = time.time()
 
         sendEmployedBees();  
               
@@ -332,8 +372,8 @@ def main():
     # Model
     print('==> Building model..')
     if arg.arch == 'vgg':
-    	model = import_module(f'model.{args.arch}'. BeeVGG(args.cfg, honeysource=best_honey.code).to(device))
-    	load_vgg_honey_model(model, args.random_rule)
+        model = import_module(f'model.{args.arch}'. BeeVGG(args.cfg, honeysource=best_honey.code).to(device))
+        load_vgg_honey_model(model, args.random_rule)
     elif args.arch == 'resnet':
         pass
     elif args.arch == 'googlenet':

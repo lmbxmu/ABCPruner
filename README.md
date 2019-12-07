@@ -31,7 +31,7 @@ python main.py
 --arch vgg 
 --cfg vgg16 
 --data_set cifar10 
---data_path /data/cifar10
+--data_path /home/lmb/cvpr_vgg2/data
 --gpus 0 
 --job_dir ./experiment/vgg16
 ```
@@ -41,21 +41,22 @@ python main.py
 ```shell
 python main_bee_VGG.py 
 --data_set cifar10 
---data_path ../../data/cifar10 
---honey_model ./experiment/vgg16/baseline/checkpoint/model_best.pt
---job_dir ./experiment/vgg16/finetune25  
+--data_path /home/lmb/cvpr_vgg2/data 
+--honey_model ./experience/vgg16/baseline/checkpoint/vgg16_cifar10.pt 
+--job_dir ./experiment/vgg16 
 --arch vgg 
 --cfg vgg16 
---lr 0.01
---lr_decay_step 75 112
+--lr 0.01 
+--lr_decay_step 75 112 
 --num_epochs 150 
---gpus 0
---calfitness_epoch 10
---maxcycle 1000
---max_preserve 9
---food_number 50
---food_dimension 13
---food_limit 5
+--gpus 0 
+--calfitness_epoch 2 
+--max_cycle 50 
+--max_preserve 9 
+--food_number 10 
+--food_dimension 13 
+--food_limit 5 
+--random_rule random_pretrain
 
 ```
 
