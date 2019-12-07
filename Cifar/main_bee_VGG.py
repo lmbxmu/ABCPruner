@@ -319,6 +319,8 @@ def sendScoutBees():
         for j in range(args.food_dimension):
             R = random.uniform(0,1)
             NectraSource[maxtrailindex].code[j] = int(R * args.max_preserve)
+            if NectraSource[maxtrailindex].code[j] == 0:
+                NectraSource[maxtrailindex].code[j] += 1
         NectraSource[maxtrailindex].trail = 0
         NectraSource[maxtrailindex].fitness = calculationFitness(NectraSource[maxtrailindex].code, loader.trainLoader, args )
  
