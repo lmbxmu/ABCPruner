@@ -28,22 +28,14 @@ else:
     class_num = 100
 
 global best_honey, NectraSource, EmployedBee, OnLooker
+global origin_model, oristate_dict, ckpt
 
 
 
 #load pre-train params
 def load_vgg_honey_model(model, random_rule):
-    if args.honey_model is None or not os.path.exists(args.honey_model):
-        raise ('Honey_model path should be exist!')
-    ckpt = torch.load(args.honey_model, map_location=device)
     #print(ckpt['state_dict'])
-    origin_model = import_module(f'model.{args.arch}').VGG(args.cfg).to(device)
-    origin_model.load_state_dict(ckpt['state_dict'])
-    oristate_dict = origin_model.state_dict()
     state_dict = model.state_dict()
-
-
-
     last_select_index = None #Conv index selected in the previous layer
 
     for name, module in model.named_modules():
@@ -145,10 +137,9 @@ def test(model, testLoader):
         )
     return accurary.avg
 
-
 def calculationFitness(honey, train_loader, args):
     if args.arch == 'vgg':
-        model = import_module(f'model.{args.arch}'). BeeVGG(args.cfg, honeysource=honey).to(device)
+        model = import_module(f'model.{args.arch}').BeeVGG(args.cfg, honeysource=honey).to(device)
         load_vgg_honey_model(model, args.random_rule)
     elif args.arch == 'resnet':
         pass
@@ -157,31 +148,42 @@ def calculationFitness(honey, train_loader, args):
     elif args.arch == 'densenet':
         pass
 
-    model.train()
-    losses = utils.AverageMeter()
-    accurary = utils.AverageMeter()
 
-    start_time = time.time()
+    fit_accurary = utils.AverageMeter()
+    train_accurary = utils.AverageMeter()
+
+    #start_time = time.time()
     if len(args.gpus) != 1:
         model = nn.DataParallel(model, device_ids=args.gpus)
 
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-    
+
+    #test(model, loader.testLoader)
+
+    model.train()
     for epoch in range(args.calfitness_epoch):
         for batch, (inputs, targets) in enumerate(train_loader):
-
             inputs, targets = inputs.to(device), targets.to(device)
             optimizer.zero_grad()
             output = model(inputs)
             loss = loss_func(output, targets)
             loss.backward()
-            losses.update(loss.item(), inputs.size(0))
             optimizer.step()
 
             prec1 = utils.accuracy(output, targets)
-            accurary.update(prec1[0], inputs.size(0))
+            train_accurary.update(prec1[0], inputs.size(0))
 
-    current_time = time.time()
+    #test(model, loader.testLoader)
+
+    with torch.no_grad():
+        for batch_idx, (inputs, targets) in enumerate(loader.testLoader):
+            inputs, targets = inputs.to(device), targets.to(device)
+            outputs = model(inputs)
+            predicted = utils.accuracy(outputs, targets)
+            fit_accurary.update(predicted[0], inputs.size(0))
+
+
+    #current_time = time.time()
     '''
     logger.info(
             'Honey Source fintness {:.2f}%\t\tTime {:.2f}s\n'
@@ -189,7 +191,10 @@ def calculationFitness(honey, train_loader, args):
         )
     '''
 
-    return accurary.avg
+
+    return fit_accurary.avg
+
+
 
 class BeeGroup():
     """docstring for BeeGroup"""
@@ -212,7 +217,6 @@ def initilize():
             NectraSource[i].code.append(random.randint(1,args.max_preserve))
             EmployedBee[i].code.append(NectraSource[0].code[j])
             OnLooker[i].code.append(NectraSource[0].code[j])
-            best_honey.code.append(NectraSource[0].code[j])
 
         #initilize honey souce
         NectraSource[i].fitness = calculationFitness(NectraSource[i].code, loader.trainLoader, args)
@@ -229,10 +233,14 @@ def initilize():
         OnLooker[i].rfitness=NectraSource[i].rfitness 
         OnLooker[i].trail=NectraSource[i].trail
 
-        #initilize best honey
-        best_honey.fitness=NectraSource[i].fitness 
-        best_honey.rfitness=NectraSource[i].rfitness 
-        best_honey.trail=NectraSource[i].trail
+
+
+    #initilize best honey
+    for j in range(args.food_dimension):
+        best_honey.code.append(NectraSource[0].code[j])
+    best_honey.fitness=NectraSource[0].fitness 
+    best_honey.rfitness=NectraSource[0].rfitness 
+    best_honey.trail=NectraSource[0].trail
 
 def sendEmployedBees():
     global best_honey, NectraSource, EmployedBee, OnLooker
@@ -262,7 +270,7 @@ def sendEmployedBees():
         else:          
             NectraSource[i].trail = NectraSource[i].trail + 1
 
-def CalculateProbabilities():
+def calculateProbabilities():
     global best_honey, NectraSource, EmployedBee, OnLooker
     
     maxfit = NectraSource[0].fitness
@@ -308,7 +316,6 @@ def sendOnlookerBees():
         if i == args.food_number:
             i = 0
 
-
 def sendScoutBees():
     global best_honey, NectraSource, EmployedBee, OnLooker
     maxtrailindex = 0
@@ -324,7 +331,7 @@ def sendScoutBees():
         NectraSource[maxtrailindex].trail = 0
         NectraSource[maxtrailindex].fitness = calculationFitness(NectraSource[maxtrailindex].code, loader.trainLoader, args )
  
-def MemorizeBestSource():
+def memorizeBestSource():
     global best_honey, NectraSource, EmployedBee, OnLooker
     for i in range(1, args.food_number):
         if NectraSource[i].fitness > best_honey.fitness:
@@ -334,7 +341,9 @@ def MemorizeBestSource():
 
 
 def main():
+    start_time = time.time()
     global best_honey, NectraSource, EmployedBee, OnLooker
+    global origin_model, oristate_dict, ckpt
     start_epoch = 0
     best_acc = 0.0
     best_honey = BeeGroup()
@@ -342,39 +351,53 @@ def main():
     EmployedBee = []
     OnLooker = []
 
-    #ABC
-    start_time = time.time()
+
+    if args.arch == 'vgg':
+         origin_model = import_module(f'model.{args.arch}').VGG(args.cfg).to(device)
+    elif args.arch == 'resnet':
+        pass
+    elif args.arch == 'googlenet':
+        pass
+    elif args.arch == 'densenet':
+        pass
+
+    if args.honey_model is None or not os.path.exists(args.honey_model):
+        raise ('Honey_model path should be exist!')
+    ckpt = torch.load(args.honey_model, map_location=device)
+    origin_model.load_state_dict(ckpt['state_dict'])
+    oristate_dict = origin_model.state_dict()
+    test(origin_model, loader.testLoader)
 
     initilize()
 
-    MemorizeBestSource()
+    memorizeBestSource()
 
-    for epoch in range(args.max_cycle):
+    for cycle in range(args.max_cycle):
 
         current_time = time.time()
         logger.info(
-            'Search Epoch [{}]\t\t Best Honey Source fintness {:.2f}%\t\tTime {:.2f}s\n'
-            .format(epoch, float(best_honey.fitness), (current_time - start_time))
+            'Search Cycle [{}]\t Best Honey Source {}\tBest Honey Source fintness {:.2f}%\tTime {:.2f}s\n'
+            .format(cycle, best_honey.code, float(best_honey.fitness), (current_time - start_time))
         )
         start_time = time.time()
 
-        sendEmployedBees();  
+        sendEmployedBees() 
               
-        CalculateProbabilities();  
+        calculateProbabilities() 
               
-        sendOnlookerBees();  
+        sendOnlookerBees()  
               
-        MemorizeBestSource();  
+        memorizeBestSource() 
               
-        sendScoutBees();  
+        sendScoutBees() 
               
-        MemorizeBestSource();  
+        memorizeBestSource() 
 
 
     # Model
     print('==> Building model..')
-    if arg.arch == 'vgg':
-        model = import_module(f'model.{args.arch}'. BeeVGG(args.cfg, honeysource=best_honey.code).to(device))
+    if args.arch == 'vgg':
+        model = import_module(f'model.{args.arch}').BeeVGG(args.cfg, honeysource=best_honey.code).to(device)
         load_vgg_honey_model(model, args.random_rule)
     elif args.arch == 'resnet':
         pass

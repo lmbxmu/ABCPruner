@@ -50,7 +50,7 @@ python main_bee_VGG.py
 --lr_decay_step 75 112 
 --num_epochs 150 
 --gpus 0 
---calfitness_epoch 2 
+--calfitness_epoch 3 
 --max_cycle 50 
 --max_preserve 9 
 --food_number 10 
