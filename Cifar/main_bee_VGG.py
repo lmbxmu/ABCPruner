@@ -201,7 +201,7 @@ class BeeGroup():
         self.trail = 0 #表示实验的次数，用于与limit作比较`
 
 def initialize():
-    print('==> Initilizing Honey_model..')
+    print('==> Initializing Honey_model..')
     global best_honey, NectraSource, EmployedBee, OnLooker
 
     for i in range(args.food_number):
