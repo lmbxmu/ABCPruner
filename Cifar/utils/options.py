@@ -197,6 +197,13 @@ parser.add_argument(
     help='Beyond this limit, the bee has not been renewed to become a scout bee'
 )
 
+parser.add_argument(
+    '--honeychange_num',
+    type=int,
+    default=2,
+    help='Number of codes that the nectar source changes each time'
+)
+
 args = parser.parse_args()
 
 if args.resume is not None and not os.path.isfile(args.resume):

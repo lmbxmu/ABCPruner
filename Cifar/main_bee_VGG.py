@@ -9,6 +9,7 @@ import os
 import time
 import sys
 import random
+import numpy as np
 import heapq
 from data import cifar10, cifar100
 from importlib import import_module
@@ -245,7 +246,7 @@ def initilize():
 def sendEmployedBees():
     global best_honey, NectraSource, EmployedBee, OnLooker
     for i in range(args.food_number):
-        param2change = random.randint(0, args.food_dimension-1)
+        
         while 1:
             k = random.randint(0, args.food_number-1)
             if k != i:
@@ -253,12 +254,16 @@ def sendEmployedBees():
 
         EmployedBee[i].code = NectraSource[i].code
 
-        Rij = random.uniform(-1, 1)
-        EmployedBee[i].code[param2change] = int(NectraSource[i].code[param2change]+ Rij*(NectraSource[i].code[param2change]-NectraSource[k].code[param2change]))
-        if EmployedBee[i].code[param2change] < 1:
-            EmployedBee[i].code[param2change] = 1
-        if EmployedBee[i].code[param2change] > args.max_preserve:
-            EmployedBee[i].code[param2change] = args.max_preserve
+
+        param2change = np.random.randint(0, args.food_dimension-1, args.honeychange_num)
+        R = np.random.uniform(-1, 1, args.honeychange_num)
+        for j in range(args.honeychange_num):
+            EmployedBee[i].code[param2change[j]] = int(NectraSource[i].code[param2change[j]]+ R[j]*(NectraSource[i].code[param2change[j]]-NectraSource[k].code[param2change[j]]))
+            if EmployedBee[i].code[param2change[j]] < 1:
+                EmployedBee[i].code[param2change[j]] = 1
+            if EmployedBee[i].code[param2change[j]] > args.max_preserve:
+                EmployedBee[i].code[param2change[j]] = args.max_preserve
+
 
         EmployedBee[i].fitness = calculationFitness(EmployedBee[i].code, loader.trainLoader, args)
 
@@ -290,19 +295,22 @@ def sendOnlookerBees():
         R_choosed = random.uniform(0,1)
         if(R_choosed < NectraSource[i].rfitness):
             t += 1
-            param2change = random.randint(0, args.food_dimension-1)
+
             while 1:
                 k = random.randint(0, args.food_number-1)
                 if k != i:
                     break
             OnLooker[i].code = NectraSource[i].code
 
-            Rij = random.uniform(-1, 1)
-            OnLooker[i].code[param2change] = int(NectraSource[i].code[param2change]+ Rij*(NectraSource[i].code[param2change]-NectraSource[k].code[param2change]))
-            if OnLooker[i].code[param2change] < 1:
-                OnLooker[i].code[param2change] = 1
-            if OnLooker[i].code[param2change] > args.max_preserve:
-               OnLooker[i].code[param2change] = args.max_preserve
+
+            param2change = np.random.randint(0, args.food_dimension-1, args.honeychange_num)
+            R = np.random.uniform(-1, 1, args.honeychange_num)
+            for j in range(args.honeychange_num):
+                OnLooker[i].code[param2change[j]] = int(NectraSource[i].code[param2change[j]]+ R[j]*(NectraSource[i].code[param2change[j]]-NectraSource[k].code[param2change[j]]))
+                if OnLooker[i].code[param2change[j]] < 1:
+                    OnLooker[i].code[param2change[j]] = 1
+                if OnLooker[i].code[param2change[j]] > args.max_preserve:
+                    OnLooker[i].code[param2change[j]] = args.max_preserve
 
             OnLooker[i].fitness = calculationFitness(OnLooker[i].code, loader.trainLoader, args)
 

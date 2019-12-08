@@ -56,6 +56,7 @@ python main_bee_VGG.py
 --food_number 10 
 --food_dimension 13 
 --food_limit 5 
+--honeychange_num 2
 --random_rule random_pretrain
 
 ```
