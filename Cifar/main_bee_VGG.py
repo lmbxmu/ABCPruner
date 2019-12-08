@@ -148,7 +148,7 @@ def test(model, testLoader):
 
 def calculationFitness(honey, train_loader, args):
     if args.arch == 'vgg':
-        model = import_module(f'model.{args.arch}'). BeeVGG(args.cfg, honeysource=honey).to(device)
+        model = import_module(f'model.{args.arch}').BeeVGG(args.cfg, honeysource=honey).to(device)
         load_vgg_honey_model(model, args.random_rule)
     elif args.arch == 'resnet':
         pass
