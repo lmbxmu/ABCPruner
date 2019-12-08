@@ -206,8 +206,8 @@ class BeeGroup():
         self.rfitness = 0 #相对适应值比例  
         self.trail = 0 #表示实验的次数，用于与limit作比较`
 
-def initilize():
-    print('==> Initilizing Honey_model..')
+def initialize():
+    print('==> Initializing Honey_model..')
     global best_honey, NectraSource, EmployedBee, OnLooker
 
     for i in range(args.food_number):
@@ -219,21 +219,22 @@ def initilize():
             EmployedBee[i].code.append(NectraSource[0].code[j])
             OnLooker[i].code.append(NectraSource[0].code[j])
 
-        #initilize honey souce
+        #initialize honey souce
         NectraSource[i].fitness = calculationFitness(NectraSource[i].code, loader.trainLoader, args)
         NectraSource[i].rfitness = 0
         NectraSource[i].trail = 0
 
-        #initilize employed bee  
+        #initialize employed bee  
         EmployedBee[i].fitness=NectraSource[i].fitness 
         EmployedBee[i].rfitness=NectraSource[i].rfitness 
         EmployedBee[i].trail=NectraSource[i].trail
 
-        #initilize onlooker 
+        #initialize onlooker 
         OnLooker[i].fitness=NectraSource[i].fitness 
         OnLooker[i].rfitness=NectraSource[i].rfitness 
         OnLooker[i].trail=NectraSource[i].trail
 
+<<<<<<< HEAD
 
 
     #initilize best honey
@@ -242,6 +243,12 @@ def initilize():
     best_honey.fitness=NectraSource[0].fitness 
     best_honey.rfitness=NectraSource[0].rfitness 
     best_honey.trail=NectraSource[0].trail
+=======
+        #initialize best honey
+        best_honey.fitness=NectraSource[i].fitness 
+        best_honey.rfitness=NectraSource[i].rfitness 
+        best_honey.trail=NectraSource[i].trail
+>>>>>>> 2a4d491e68cee65718238b437eb00a63c84fb2ab
 
 def sendEmployedBees():
     global best_honey, NectraSource, EmployedBee, OnLooker
@@ -376,7 +383,7 @@ def main():
     oristate_dict = origin_model.state_dict()
     test(origin_model, loader.testLoader)
 
-    initilize()
+    initialize()
 
     memorizeBestSource()
 
