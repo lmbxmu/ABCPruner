@@ -234,7 +234,7 @@ def initialize():
         OnLooker[i].rfitness=NectraSource[i].rfitness 
         OnLooker[i].trail=NectraSource[i].trail
 
-<<<<<<< HEAD
+
 
 
     #initilize best honey
@@ -243,12 +243,12 @@ def initialize():
     best_honey.fitness=NectraSource[0].fitness 
     best_honey.rfitness=NectraSource[0].rfitness 
     best_honey.trail=NectraSource[0].trail
-=======
+
         #initialize best honey
         best_honey.fitness=NectraSource[i].fitness 
         best_honey.rfitness=NectraSource[i].rfitness 
         best_honey.trail=NectraSource[i].trail
->>>>>>> 2a4d491e68cee65718238b437eb00a63c84fb2ab
+
 
 def sendEmployedBees():
     global best_honey, NectraSource, EmployedBee, OnLooker
