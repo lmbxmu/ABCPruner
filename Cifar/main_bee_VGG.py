@@ -15,7 +15,6 @@ import heapq
 from data import cifar10, cifar100
 from importlib import import_module
 
-#https://www.runoob.com/python3/python3-att-list-append.html
 
 device = torch.device(f"cuda:{args.gpus[0]}") if torch.cuda.is_available() else 'cpu'
 logger = utils.get_logger(os.path.join(args.job_dir + 'logger.log'))
@@ -31,14 +30,29 @@ else:
     loader = cifar100.Data(args)
     class_num = 100
 
-global best_honey, NectraSource, EmployedBee, OnLooker
-global origin_model, oristate_dict, ckpt
+# Model
+print('==> Loading Model..')
+if args.arch == 'vgg':
+     origin_model = import_module(f'model.{args.arch}').VGG(args.cfg).to(device)
+elif args.arch == 'resnet':
+    pass
+elif args.arch == 'googlenet':
+    pass
+elif args.arch == 'densenet':
+    pass
 
+if args.honey_model is None or not os.path.exists(args.honey_model):
+    raise ('Honey_model path should be exist!')
+
+ckpt = torch.load(args.honey_model, map_location=device)
+origin_model.load_state_dict(ckpt['state_dict'])
+oristate_dict = origin_model.state_dict()
 
 
 #load pre-train params
 def load_vgg_honey_model(model, random_rule):
     #print(ckpt['state_dict'])
+    global oristate_dict
     state_dict = model.state_dict()
     last_select_index = None #Conv index selected in the previous layer
 
@@ -141,6 +155,7 @@ def test(model, testLoader):
         )
     return accurary.avg
 
+#Calculate fitness of a honey source
 def calculationFitness(honey, train_loader, args):
 
     if args.arch == 'vgg':
@@ -179,6 +194,7 @@ def calculationFitness(honey, train_loader, args):
 
     #test(model, loader.testLoader)
 
+    model.eval()
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(loader.testLoader):
             inputs, targets = inputs.to(device), targets.to(device)
@@ -197,6 +213,7 @@ def calculationFitness(honey, train_loader, args):
 
     return fit_accurary.avg
 
+#Define BeeGroup 
 class BeeGroup():
     """docstring for BeeGroup"""
     def __init__(self):
@@ -206,6 +223,13 @@ class BeeGroup():
         self.rfitness = 0 
         self.trail = 0
 
+#Initilize global element
+best_honey = BeeGroup()
+NectraSource = []
+EmployedBee = []
+OnLooker = []
+
+#Initilize Bee-Pruning
 def initilize():
     print('==> Initilizing Honey_model..')
     global best_honey, NectraSource, EmployedBee, OnLooker
@@ -215,7 +239,7 @@ def initilize():
         EmployedBee.append(copy.deepcopy(BeeGroup()))
         OnLooker.append(copy.deepcopy(BeeGroup()))
         for j in range(args.food_dimension):
-            NectraSource[i].code.append(random.randint(1,args.max_preserve))
+            NectraSource[i].code.append(copy.deepcopy(random.randint(1,args.max_preserve)))
 
         #initilize honey souce
         NectraSource[i].fitness = calculationFitness(NectraSource[i].code, loader.trainLoader, args)
@@ -223,23 +247,24 @@ def initilize():
         NectraSource[i].trail = 0
 
         #initilize employed bee  
-        EmployedBee[i].code = NectraSource[i].code
+        EmployedBee[i].code = copy.deepcopy(NectraSource[i].code)
         EmployedBee[i].fitness=NectraSource[i].fitness 
         EmployedBee[i].rfitness=NectraSource[i].rfitness 
         EmployedBee[i].trail=NectraSource[i].trail
 
         #initilize onlooker 
-        OnLooker[i].code = NectraSource[i].code
+        OnLooker[i].code = copy.deepcopy(NectraSource[i].code)
         OnLooker[i].fitness=NectraSource[i].fitness 
         OnLooker[i].rfitness=NectraSource[i].rfitness 
         OnLooker[i].trail=NectraSource[i].trail
 
     #initilize best honey
-    best_honey.code = NectraSource[0].code
-    best_honey.fitness=NectraSource[0].fitness 
-    best_honey.rfitness=NectraSource[0].rfitness 
-    best_honey.trail=NectraSource[0].trail
+    best_honey.code = copy.deepcopy(NectraSource[0].code)
+    best_honey.fitness = NectraSource[0].fitness
+    best_honey.rfitness = NectraSource[0].rfitness
+    best_honey.trail = NectraSource[0].trail
 
+#Send employed bees to find better honey source
 def sendEmployedBees():
     global NectraSource, EmployedBee
     for i in range(args.food_number):
@@ -249,7 +274,7 @@ def sendEmployedBees():
             if k != i:
                 break
 
-        EmployedBee[i].code = NectraSource[i].code
+        EmployedBee[i].code = copy.deepcopy(NectraSource[i].code)
 
         param2change = np.random.randint(0, args.food_dimension-1, args.honeychange_num)
         R = np.random.uniform(-1, 1, args.honeychange_num)
@@ -263,25 +288,27 @@ def sendEmployedBees():
         EmployedBee[i].fitness = calculationFitness(EmployedBee[i].code, loader.trainLoader, args)
 
         if EmployedBee[i].fitness > NectraSource[i].fitness:                
-            NectraSource[i].code = EmployedBee[i].code              
+            NectraSource[i].code = copy.deepcopy(EmployedBee[i].code)              
             NectraSource[i].trail = 0  
             NectraSource[i].fitness = EmployedBee[i].fitness 
             
         else:          
             NectraSource[i].trail = NectraSource[i].trail + 1
 
+#Calculate whether a Onlooker to update a honey source
 def calculateProbabilities():
     global NectraSource
     
     maxfit = NectraSource[0].fitness
 
-    for i in range(0, args.food_number-1):
+    for i in range(1, args.food_number):
         if NectraSource[i].fitness > maxfit:
             maxfit = NectraSource[i].fitness
 
     for i in range(args.food_number):
         NectraSource[i].rfitness = (0.9 * (NectraSource[i].fitness / maxfit)) + 0.1
 
+#Send Onlooker bees to find better honey source
 def sendOnlookerBees():
     global NectraSource, EmployedBee, OnLooker
     i = 0
@@ -295,7 +322,7 @@ def sendOnlookerBees():
                 k = random.randint(0, args.food_number-1)
                 if k != i:
                     break
-            OnLooker[i].code = NectraSource[i].code
+            OnLooker[i].code = copy.deepcopy(NectraSource[i].code)
 
             param2change = np.random.randint(0, args.food_dimension-1, args.honeychange_num)
             R = np.random.uniform(-1, 1, args.honeychange_num)
@@ -309,7 +336,7 @@ def sendOnlookerBees():
             OnLooker[i].fitness = calculationFitness(OnLooker[i].code, loader.trainLoader, args)
 
             if OnLooker[i].fitness > NectraSource[i].fitness:                
-                NectraSource[i].code = OnLooker[i].code              
+                NectraSource[i].code = copy.deepcopy(OnLooker[i].code)              
                 NectraSource[i].trail = 0  
                 NectraSource[i].fitness = OnLooker[i].fitness 
             else:          
@@ -318,10 +345,11 @@ def sendOnlookerBees():
         if i == args.food_number:
             i = 0
 
+#If a honey source has not been update for args.food_limiet times, send a scout bee to regenerate it
 def sendScoutBees():
     global  NectraSource, EmployedBee, OnLooker
     maxtrailindex = 0
-    for i in range(1, args.food_number):
+    for i in range(args.food_number):
         if NectraSource[i].trail > NectraSource[maxtrailindex].trail:
             maxtrailindex = i
     if NectraSource[maxtrailindex].trail >= args.food_limit:
@@ -333,46 +361,22 @@ def sendScoutBees():
         NectraSource[maxtrailindex].trail = 0
         NectraSource[maxtrailindex].fitness = calculationFitness(NectraSource[maxtrailindex].code, loader.trainLoader, args )
  
+ #Memorize best honey source
 def memorizeBestSource():
     global best_honey, NectraSource
-    for i in range(1, args.food_number):
+    for i in range(args.food_number):
         if NectraSource[i].fitness > best_honey.fitness:
             print(NectraSource[i].fitness, NectraSource[i].code)
             print(best_honey.fitness, best_honey.code)
-            best_honey.code = NectraSource[i].code
+            best_honey.code = copy.deepcopy(NectraSource[i].code)
             best_honey.fitness = NectraSource[i].fitness
 
 
-
 def main():
-    global best_honey, NectraSource, EmployedBee, OnLooker
-    global origin_model, oristate_dict, ckpt
     start_epoch = 0
     best_acc = 0.0
-    best_honey = BeeGroup()
-    NectraSource = []
-    EmployedBee = []
-    OnLooker = []
 
-
-    if args.arch == 'vgg':
-         origin_model = import_module(f'model.{args.arch}').VGG(args.cfg).to(device)
-    elif args.arch == 'resnet':
-        pass
-    elif args.arch == 'googlenet':
-        pass
-    elif args.arch == 'densenet':
-        pass
-
-    if args.honey_model is None or not os.path.exists(args.honey_model):
-        raise ('Honey_model path should be exist!')
-    ckpt = torch.load(args.honey_model, map_location=device)
-    origin_model.load_state_dict(ckpt['state_dict'])
-    oristate_dict = origin_model.state_dict()
     test(origin_model, loader.testLoader)
-
-
-
 
     if args.best_honey == None:
 
@@ -415,6 +419,7 @@ def main():
         )
     else:
         best_honey.code = args.best_honey
+
     # Model
     print('==> Building model..')
     if args.arch == 'vgg':
