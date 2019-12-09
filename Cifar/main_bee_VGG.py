@@ -7,12 +7,15 @@ import utils.common as utils
 
 import os
 import time
+import copy
 import sys
 import random
 import numpy as np
 import heapq
 from data import cifar10, cifar100
 from importlib import import_module
+
+#https://www.runoob.com/python3/python3-att-list-append.html
 
 device = torch.device(f"cuda:{args.gpus[0]}") if torch.cuda.is_available() else 'cpu'
 logger = utils.get_logger(os.path.join(args.job_dir + 'logger.log'))
@@ -111,7 +114,7 @@ def train(model, optimizer, trainLoader, args, epoch):
             )
             start_time = current_time
 
-#Testing
+#Testinga
 def test(model, testLoader):
     global best_acc
     model.eval()
@@ -139,6 +142,7 @@ def test(model, testLoader):
     return accurary.avg
 
 def calculationFitness(honey, train_loader, args):
+
     if args.arch == 'vgg':
         model = import_module(f'model.{args.arch}').BeeVGG(args.cfg, honeysource=honey).to(device)
         load_vgg_honey_model(model, args.random_rule)
@@ -148,7 +152,6 @@ def calculationFitness(honey, train_loader, args):
         pass
     elif args.arch == 'densenet':
         pass
-
 
     fit_accurary = utils.AverageMeter()
     train_accurary = utils.AverageMeter()
@@ -192,10 +195,7 @@ def calculationFitness(honey, train_loader, args):
         )
     '''
 
-
     return fit_accurary.avg
-
-
 
 class BeeGroup():
     """docstring for BeeGroup"""
@@ -203,21 +203,19 @@ class BeeGroup():
         super(BeeGroup, self).__init__() 
         self.code = [] #size : num of conv layers  value:{1,2,3,4,5,6,7,8,9,10}
         self.fitness = 0
-        self.rfitness = 0 #相对适应值比例  
-        self.trail = 0 #表示实验的次数，用于与limit作比较`
+        self.rfitness = 0 
+        self.trail = 0
 
 def initilize():
     print('==> Initilizing Honey_model..')
     global best_honey, NectraSource, EmployedBee, OnLooker
 
     for i in range(args.food_number):
-        NectraSource.append(BeeGroup())
-        EmployedBee.append(BeeGroup())
-        OnLooker.append(BeeGroup())
+        NectraSource.append(copy.deepcopy(BeeGroup()))
+        EmployedBee.append(copy.deepcopy(BeeGroup()))
+        OnLooker.append(copy.deepcopy(BeeGroup()))
         for j in range(args.food_dimension):
             NectraSource[i].code.append(random.randint(1,args.max_preserve))
-            EmployedBee[i].code.append(NectraSource[0].code[j])
-            OnLooker[i].code.append(NectraSource[0].code[j])
 
         #initilize honey souce
         NectraSource[i].fitness = calculationFitness(NectraSource[i].code, loader.trainLoader, args)
@@ -225,26 +223,25 @@ def initilize():
         NectraSource[i].trail = 0
 
         #initilize employed bee  
+        EmployedBee[i].code = NectraSource[i].code
         EmployedBee[i].fitness=NectraSource[i].fitness 
         EmployedBee[i].rfitness=NectraSource[i].rfitness 
         EmployedBee[i].trail=NectraSource[i].trail
 
         #initilize onlooker 
+        OnLooker[i].code = NectraSource[i].code
         OnLooker[i].fitness=NectraSource[i].fitness 
         OnLooker[i].rfitness=NectraSource[i].rfitness 
         OnLooker[i].trail=NectraSource[i].trail
 
-
-
     #initilize best honey
-    for j in range(args.food_dimension):
-        best_honey.code.append(NectraSource[0].code[j])
+    best_honey.code = NectraSource[0].code
     best_honey.fitness=NectraSource[0].fitness 
     best_honey.rfitness=NectraSource[0].rfitness 
     best_honey.trail=NectraSource[0].trail
 
 def sendEmployedBees():
-    global best_honey, NectraSource, EmployedBee, OnLooker
+    global NectraSource, EmployedBee
     for i in range(args.food_number):
         
         while 1:
@@ -254,7 +251,6 @@ def sendEmployedBees():
 
         EmployedBee[i].code = NectraSource[i].code
 
-
         param2change = np.random.randint(0, args.food_dimension-1, args.honeychange_num)
         R = np.random.uniform(-1, 1, args.honeychange_num)
         for j in range(args.honeychange_num):
@@ -263,7 +259,6 @@ def sendEmployedBees():
                 EmployedBee[i].code[param2change[j]] = 1
             if EmployedBee[i].code[param2change[j]] > args.max_preserve:
                 EmployedBee[i].code[param2change[j]] = args.max_preserve
-
 
         EmployedBee[i].fitness = calculationFitness(EmployedBee[i].code, loader.trainLoader, args)
 
@@ -276,7 +271,7 @@ def sendEmployedBees():
             NectraSource[i].trail = NectraSource[i].trail + 1
 
 def calculateProbabilities():
-    global best_honey, NectraSource, EmployedBee, OnLooker
+    global NectraSource
     
     maxfit = NectraSource[0].fitness
 
@@ -288,7 +283,7 @@ def calculateProbabilities():
         NectraSource[i].rfitness = (0.9 * (NectraSource[i].fitness / maxfit)) + 0.1
 
 def sendOnlookerBees():
-    global best_honey, NectraSource, EmployedBee, OnLooker
+    global NectraSource, EmployedBee, OnLooker
     i = 0
     t = 0
     while t < args.food_number:
@@ -301,7 +296,6 @@ def sendOnlookerBees():
                 if k != i:
                     break
             OnLooker[i].code = NectraSource[i].code
-
 
             param2change = np.random.randint(0, args.food_dimension-1, args.honeychange_num)
             R = np.random.uniform(-1, 1, args.honeychange_num)
@@ -325,7 +319,7 @@ def sendOnlookerBees():
             i = 0
 
 def sendScoutBees():
-    global best_honey, NectraSource, EmployedBee, OnLooker
+    global  NectraSource, EmployedBee, OnLooker
     maxtrailindex = 0
     for i in range(1, args.food_number):
         if NectraSource[i].trail > NectraSource[maxtrailindex].trail:
@@ -340,16 +334,17 @@ def sendScoutBees():
         NectraSource[maxtrailindex].fitness = calculationFitness(NectraSource[maxtrailindex].code, loader.trainLoader, args )
  
 def memorizeBestSource():
-    global best_honey, NectraSource, EmployedBee, OnLooker
+    global best_honey, NectraSource
     for i in range(1, args.food_number):
         if NectraSource[i].fitness > best_honey.fitness:
+            print(NectraSource[i].fitness, NectraSource[i].code)
+            print(best_honey.fitness, best_honey.code)
             best_honey.code = NectraSource[i].code
             best_honey.fitness = NectraSource[i].fitness
 
 
 
 def main():
-    start_time = time.time()
     global best_honey, NectraSource, EmployedBee, OnLooker
     global origin_model, oristate_dict, ckpt
     start_epoch = 0
@@ -376,32 +371,50 @@ def main():
     oristate_dict = origin_model.state_dict()
     test(origin_model, loader.testLoader)
 
-    initilize()
 
-    memorizeBestSource()
 
-    for cycle in range(args.max_cycle):
 
-        current_time = time.time()
-        logger.info(
-            'Search Cycle [{}]\t Best Honey Source {}\tBest Honey Source fintness {:.2f}%\tTime {:.2f}s\n'
-            .format(cycle, best_honey.code, float(best_honey.fitness), (current_time - start_time))
-        )
+    if args.best_honey == None:
+
         start_time = time.time()
+        
+        bee_start_time = time.time()
+        
+        print('==> Start BeePruning..')
 
-        sendEmployedBees() 
-              
-        calculateProbabilities() 
-              
-        sendOnlookerBees()  
-              
-        memorizeBestSource() 
-              
-        sendScoutBees() 
-              
-        memorizeBestSource() 
+        initilize()
 
+        memorizeBestSource()
 
+        for cycle in range(args.max_cycle):
+
+            current_time = time.time()
+            logger.info(
+                'Search Cycle [{}]\t Best Honey Source {}\tBest Honey Source fitness {:.2f}%\tTime {:.2f}s\n'
+                .format(cycle, best_honey.code, float(best_honey.fitness), (current_time - start_time))
+            )
+            start_time = time.time()
+
+            sendEmployedBees() 
+              
+            calculateProbabilities() 
+              
+            sendOnlookerBees()  
+              
+            memorizeBestSource() 
+              
+            sendScoutBees() 
+              
+            memorizeBestSource() 
+
+        print('==> BeePruning Complete!')
+        bee_end_time = time.time()
+        logger.info(
+            'Best Honey Source {}\tBest Honey Source fitness {:.2f}%\tTime Used{:.2f}s\n'
+            .format(best_honey.code, float(best_honey.fitness), (bee_end_time - bee_start_time))
+        )
+    else:
+        best_honey.code = args.best_honey
     # Model
     print('==> Building model..')
     if args.arch == 'vgg':

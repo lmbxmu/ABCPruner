@@ -204,6 +204,15 @@ parser.add_argument(
     help='Number of codes that the nectar source changes each time'
 )
 
+parser.add_argument(
+    '--best_honey',
+    type=int,
+    nargs='+',
+    default=None,
+    help='If this hyper-parameter exists, skip bee-pruning and fine-tune from this prune method'
+
+)
+
 args = parser.parse_args()
 
 if args.resume is not None and not os.path.isfile(args.resume):
