@@ -424,7 +424,7 @@ def main():
 
     # Model
     print('==> Building model..')
-    if args.arch == 'vgg':
+    if args.arch == 'vgg_cifar':
         model = import_module(f'model.{args.arch}').BeeVGG(args.cfg, honeysource=best_honey.code).to(device)
         load_vgg_honey_model(model, args.random_rule)
     elif args.arch == 'resnet':

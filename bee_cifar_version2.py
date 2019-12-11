@@ -372,12 +372,14 @@ def sendOnlookerBees():
 
             param2change = np.random.randint(0, args.food_dimension-1, args.honeychange_num)
             R = np.random.uniform(-1, 1, args.honeychange_num)
+
             for j in range(args.honeychange_num):
                 OnLooker[i].code[param2change[j]] = int(NectraSource[i].code[param2change[j]]+ R[j]*(NectraSource[i].code[param2change[j]]-NectraSource[k].code[param2change[j]]))
                 if OnLooker[i].code[param2change[j]] < 1:
                     OnLooker[i].code[param2change[j]] = 1
-                if OnLooker[i].code[param2change[j]] > args.max_preserve:
-                    OnLooker[i].code[param2change[j]] = args.max_preserve
+                if args.preserve_type == 'layerwise':
+                    if OnLooker[i].code[param2change[j]] > args.max_preserve:
+                        OnLooker[i].code[param2change[j]] = args.max_preserve
 
             OnLooker[i].fitness, OnLooker[maxtrailindex].selected= calculationFitness(OnLooker[i].code, loader.trainLoader, args)
 
