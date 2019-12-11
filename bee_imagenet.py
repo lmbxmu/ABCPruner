@@ -228,7 +228,7 @@ def calculationFitness(honey, args):
         )
     '''
     if fit_accurary.avg == 0:
-        fit_accurary = 0.01
+        fit_accurary.avg = 0.01
 
     return fit_accurary.avg
 
