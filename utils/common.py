@@ -60,6 +60,13 @@ class checkpoint():
         if is_best:
             shutil.copyfile(save_path, f'{self.ckpt_dir}/model_best.pt')
 
+    def save_honey_model(self, state):
+        save_path = f'{self.ckpt_dir}/bestmodel_after_bee.pt'
+        # print('=> Saving model to {}'.format(save_path))
+        torch.save(state, save_path)
+
+
+
 def get_logger(file_path):
     logger = logging.getLogger('gal')
     log_format = '%(asctime)s | %(message)s'

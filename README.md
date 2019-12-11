@@ -11,7 +11,7 @@ Pruning neural network model via BeePruning.
 
 ### Pre-train Models
 
-Additionally, we provide several  pre-trained models used in our experiments.
+Additionally, we provide several pre-trained models used in our experiments.
 
 #### CIFAR-10
 
@@ -36,31 +36,53 @@ python main.py
 --job_dir ./experiment/vgg16
 ```
 
-### BeePruning for Pre-trained model
+
+
+### BeePruning for Pre-trained model ----Cifar
 
 ```shell
-python main_bee_VGG.py 
+python bee_cifar.py 
 --data_set cifar10 
 --data_path /home/lmb/cvpr_vgg2/data 
---honey_model ./experience/vgg16/baseline/checkpoint/vgg16_cifar10.pt 
+--honey_model ./experience/vgg16/baseline/checkpoint/vgg16.pt 
 --job_dir ./experiment/vgg16 
+--arch vgg_cifar 
+--cfg vgg16 
+--lr 0.01 
+--lr_decay_step 75 112 
+--num_epochs 150 
+--gpus 0 
+--calfitness_epoch 2 
+--max_cycle 50 
+--max_preserve 9 
+--food_number 10 
+--food_dimension 13 
+--food_limit 5 
+--random_rule random_pretrain
+
+```
+### BeePruning for Pre-trained model ----Imagenet
+
+```shell
+python bee_imagenet.py 
+--data_path /home/sda4/data/ImageNet2012 
+--honey_model ./experience/vgg16/baseline/checkpoint/vgg16_imagenet.pth 
+--job_dir ./experiment/vgg16_imagnet 
 --arch vgg 
 --cfg vgg16 
 --lr 0.01 
 --lr_decay_step 75 112 
 --num_epochs 150 
 --gpus 0 
---calfitness_epoch 3 
+--calfitness_epoch 2 
 --max_cycle 50 
 --max_preserve 9 
 --food_number 10 
 --food_dimension 13 
 --food_limit 5 
---honeychange_num 2
 --random_rule random_pretrain
 
 ```
-
 
 
 ### Other optional arguments

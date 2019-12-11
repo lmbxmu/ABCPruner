@@ -29,12 +29,14 @@ parser.add_argument(
 	help='Select gpu_id to use. default:[0]',
 )
 
+
 parser.add_argument(
 	'--data_set',
 	type=str,
 	default='cifar10',
 	help='Select dataset to train. default:cifar10',
 )
+
 
 parser.add_argument(
 	'--data_path',
@@ -95,14 +97,14 @@ parser.add_argument(
 parser.add_argument(
     '--train_batch_size',
     type=int,
-    default=256,
+    default=128,
     help='Batch size for training. default:128'
 )
 
 parser.add_argument(
     '--eval_batch_size',
     type=int,
-    default=100,
+    default=128,
     help='Batch size for validation. default:100'
 )
 
@@ -214,6 +216,13 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
+
+netcfg = {
+    'vgg16':13,
+    'resnet18':18
+}
+
+args.food_dimension = netcfg[args.cfg]
 
 if args.resume is not None and not os.path.isfile(args.resume):
     raise ValueError('No checkpoint found at {} to resume'.format(args.resume))

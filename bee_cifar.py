@@ -12,7 +12,7 @@ import sys
 import random
 import numpy as np
 import heapq
-from data import cifar10, cifar100
+from data import cifar10, cifar100, imagenet
 from importlib import import_module
 
 
@@ -25,14 +25,15 @@ loss_func = nn.CrossEntropyLoss()
 print('==> Loading Data..')
 if args.data_set == 'cifar10':
     loader = cifar10.Data(args)
-    class_num = 10
-else:
+elif args.data_set == 'cifar100':
     loader = cifar100.Data(args)
-    class_num = 100
+else:
+    loader = imagenet.Data(args)
+
 
 # Model
 print('==> Loading Model..')
-if args.arch == 'vgg':
+if args.arch == 'vgg_cifar':
      origin_model = import_module(f'model.{args.arch}').VGG(args.cfg).to(device)
 elif args.arch == 'resnet':
     pass
@@ -158,8 +159,8 @@ def test(model, testLoader):
 #Calculate fitness of a honey source
 def calculationFitness(honey, train_loader, args):
 
-    if args.arch == 'vgg':
-        model = import_module(f'model.{args.arch}').BeeVGG(args.cfg, honeysource=honey).to(device)
+    if args.arch == 'vgg_cifar':
+        model = import_module(f'model.{args.arch}').BeeVGG(args.cfg,honeysource=honey).to(device)
         load_vgg_honey_model(model, args.random_rule)
     elif args.arch == 'resnet':
         pass
@@ -417,6 +418,7 @@ def main():
             'Best Honey Source {}\tBest Honey Source fitness {:.2f}%\tTime Used{:.2f}s\n'
             .format(best_honey.code, float(best_honey.fitness), (bee_end_time - bee_start_time))
         )
+        checkpoint.save_honey_model(state)
     else:
         best_honey.code = args.best_honey
 
