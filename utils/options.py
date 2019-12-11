@@ -181,7 +181,7 @@ parser.add_argument(
 parser.add_argument(
     '--preserve_type',
     type = str,
-    default = 'layerwise'
+    default = 'layerwise',
     help = 'The preserve ratio of each layer or the preserve ratio of the entire network'
 
 )

@@ -1,5 +1,4 @@
-#Save the selected channel while preserving the honey source
-
+#Save the state_dict while preserving the honey source
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -59,8 +58,7 @@ class BeeGroup():
         super(BeeGroup, self).__init__() 
         self.code = [] #size : num of conv layers  value:{1,2,3,4,5,6,7,8,9,10}
         self.fitness = 0
-        self.selected = []
-        #self.state_dict = {}
+        self.state_dict = {}
         self.rfitness = 0 
         self.trail = 0
 
@@ -76,7 +74,6 @@ def load_vgg_honey_model(model, random_rule):
     global oristate_dict
     state_dict = model.state_dict()
     last_select_index = None #Conv index selected in the previous layer
-    selected_index = []
 
     for name, module in model.named_modules():
 
@@ -107,8 +104,6 @@ def load_vgg_honey_model(model, random_rule):
                         state_dict[name + '.weight'][index_i] = \
                             oristate_dict[name + '.weight'][i]
 
-                selected_index.append(copy.deepcopy(select_index))
-
                 last_select_index = select_index
 
             else:
@@ -116,38 +111,8 @@ def load_vgg_honey_model(model, random_rule):
                 last_select_index = None
 
     model.load_state_dict(state_dict)
-    return selected_index
+    return state_dict
 
-#load pre-train params
-def load_best_honey_model(model, selected_index):
-    #print(ckpt['state_dict'])
-    global oristate_dict
-    state_dict = model.state_dict()
-    last_select_index = None #Conv index selected in the previous layer
-
-    index = 0
-
-    for name, module in model.named_modules():
-
-        if isinstance(module, nn.Conv2d):
-
-            oriweight = oristate_dict[name + '.weight']
-            curweight = state_dict[name + '.weight']
-            
-            if last_select_index is not None:
-                for index_i, i in enumerate(selected_index[index]):
-                    for index_j, j in enumerate(last_select_index):
-                        state_dict[name + '.weight'][index_i][index_j] = \
-                                oristate_dict[name + '.weight'][i][j]
-            else:
-                for index_i, i in enumerate(selected_index[index]):
-                    state_dict[name + '.weight'][index_i] = \
-                            oristate_dict[name + '.weight'][i]
-
-            last_select_index = selected_index[index]
-            index += 1
-
-    model.load_state_dict(state_dict)
 
 
 # Training
@@ -218,7 +183,7 @@ def calculationFitness(honey, train_loader, args):
 
     if args.arch == 'vgg_cifar':
         model = import_module(f'model.{args.arch}').BeeVGG(args.cfg,honeysource=honey).to(device)
-        selected_index = load_vgg_honey_model(model, args.random_rule)
+        state_dict = load_vgg_honey_model(model, args.random_rule)
     elif args.arch == 'resnet':
         pass
     elif args.arch == 'googlenet':
@@ -269,7 +234,7 @@ def calculationFitness(honey, train_loader, args):
         )
     '''
 
-    return fit_accurary.avg, copy.deepcopy(selected_index)
+    return fit_accurary.avg, copy.deepcopy(state_dict)
 
 
 
@@ -287,28 +252,28 @@ def initilize():
 
         #initilize honey souce
 
-        NectraSource[i].fitness, NectraSource[i].selected = calculationFitness(NectraSource[i].code, loader.trainLoader, args)
+        NectraSource[i].fitness, NectraSource[i].state_dict = calculationFitness(NectraSource[i].code, loader.trainLoader, args)
         NectraSource[i].rfitness = 0
         NectraSource[i].trail = 0
 
         #initilize employed bee  
         EmployedBee[i].code = copy.deepcopy(NectraSource[i].code)
         EmployedBee[i].fitness=NectraSource[i].fitness 
-        EmployedBee[i].selected = copy.deepcopy(NectraSource[i].selected)
+        EmployedBee[i].state_dict = copy.deepcopy(NectraSource[i].state_dict)
         EmployedBee[i].rfitness=NectraSource[i].rfitness 
         EmployedBee[i].trail=NectraSource[i].trail
 
         #initilize onlooker 
         OnLooker[i].code = copy.deepcopy(NectraSource[i].code)
         OnLooker[i].fitness=NectraSource[i].fitness 
-        OnLooker[i].selected = copy.deepcopy(NectraSource[i].selected)
+        OnLooker[i].state_dict = copy.deepcopy(NectraSource[i].state_dict)
         OnLooker[i].rfitness=NectraSource[i].rfitness 
         OnLooker[i].trail=NectraSource[i].trail
 
     #initilize best honey
     best_honey.code = copy.deepcopy(NectraSource[0].code)
     best_honey.fitness = NectraSource[0].fitness
-    best_honey.selected = copy.deepcopy(NectraSource[i].selected)
+    best_honey.state_dict = copy.deepcopy(NectraSource[i].state_dict)
     best_honey.rfitness = NectraSource[0].rfitness
     best_honey.trail = NectraSource[0].trail
 
@@ -333,11 +298,11 @@ def sendEmployedBees():
             if EmployedBee[i].code[param2change[j]] > args.max_preserve:
                 EmployedBee[i].code[param2change[j]] = args.max_preserve
 
-        EmployedBee[i].fitness, EmployedBee[i].selected = calculationFitness(EmployedBee[i].code, loader.trainLoader, args)
+        EmployedBee[i].fitness, EmployedBee[i].state_dict = calculationFitness(EmployedBee[i].code, loader.trainLoader, args)
 
         if EmployedBee[i].fitness > NectraSource[i].fitness:                
             NectraSource[i].code = copy.deepcopy(EmployedBee[i].code)
-            NectraSource[i].selected = copy.deepcopy(EmployedBee[i].selected)             
+            NectraSource[i].state_dict = copy.deepcopy(EmployedBee[i].state_dict)            
             NectraSource[i].trail = 0  
             NectraSource[i].fitness = EmployedBee[i].fitness 
             
@@ -384,12 +349,12 @@ def sendOnlookerBees():
                     if OnLooker[i].code[param2change[j]] > args.max_preserve:
                         OnLooker[i].code[param2change[j]] = args.max_preserve
 
-            OnLooker[i].fitness, OnLooker[i].selected= calculationFitness(OnLooker[i].code, loader.trainLoader, args)
+            OnLooker[i].fitness, OnLooker[i].state_dict= calculationFitness(OnLooker[i].code, loader.trainLoader, args)
 
             if OnLooker[i].fitness > NectraSource[i].fitness:                
                 NectraSource[i].code = copy.deepcopy(OnLooker[i].code)              
                 NectraSource[i].trail = 0  
-                NectraSource[i].selected = copy.deepcopy(OnLooker[i].selected)
+                NectraSource[i].state_dict = copy.deepcopy(OnLooker[i].state_dict)
                 NectraSource[i].fitness = OnLooker[i].fitness 
             else:          
                 NectraSource[i].trail = NectraSource[i].trail + 1
@@ -411,7 +376,7 @@ def sendScoutBees():
             if NectraSource[maxtrailindex].code[j] == 0:
                 NectraSource[maxtrailindex].code[j] += 1
         NectraSource[maxtrailindex].trail = 0
-        NectraSource[maxtrailindex].fitness, NectraSource[maxtrailindex].selected= calculationFitness(NectraSource[maxtrailindex].code, loader.trainLoader, args )
+        NectraSource[maxtrailindex].fitness, NectraSource[maxtrailindex].state_dict = calculationFitness(NectraSource[maxtrailindex].code, loader.trainLoader, args )
  
  #Memorize best honey source
 def memorizeBestSource():
@@ -421,7 +386,7 @@ def memorizeBestSource():
             #print(NectraSource[i].fitness, NectraSource[i].code)
             #print(best_honey.fitness, best_honey.code)
             best_honey.code = copy.deepcopy(NectraSource[i].code)
-            best_honey.selected = copy.deepcopy(NectraSource[i].selected)
+            best_honey.state_dict = copy.deepcopy(NectraSource[i].state_dict)
             best_honey.fitness = NectraSource[i].fitness
 
 
@@ -478,7 +443,7 @@ def main():
     print('==> Building model..')
     if args.arch == 'vgg_cifar':
         model = import_module(f'model.{args.arch}').BeeVGG(args.cfg, honeysource=best_honey.code).to(device)
-        load_best_honey_model(model, best_honey.selected)
+        model.load_state_dict(best_honey.state_dict)
         checkpoint.save_honey_model(model.state_dict())
     elif args.arch == 'resnet':
         pass

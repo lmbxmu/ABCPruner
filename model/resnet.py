@@ -4,11 +4,11 @@ import torch.nn.functional as F
 
 class BasicBlock(nn.Module):
 	expansion = 1
-	def __init__(self, in_planes, planes, stride=1, honeysource, honeyindex):
+	def __init__(self, in_planes, planes, stride=1, honey, index):
 		super(BasicBlock, self).__init__()
-		self.conv1 = nn.Conv2d(in_planes, int(planes * honeyrate / 10), kernel_size=3, stride=stride, padding=1, bias=False)
-		self.bn1 = nn.BatchNorm2d(int(planes * honeyrate / 10))
-		self.conv2 = nn.Conv2d(int(planes * honeyrate / 10), planes, kernel_size=3, stride=1, padding=1, bias=False)
+		self.conv1 = nn.Conv2d(in_planes, int(planes * honey[index] / 10), kernel_size=3, stride=stride, padding=1, bias=False)
+		self.bn1 = nn.BatchNorm2d(int(planes * honey[index] / 10))
+		self.conv2 = nn.Conv2d(int(planes * honey[index] / 10), planes, kernel_size=3, stride=1, padding=1, bias=False)
 		self.bn2 = nn.BatchNorm2d(planes)
 
 		self.downsample = nn.Sequential()
@@ -28,7 +28,7 @@ class BasicBlock(nn.Module):
 class Bottleneck(nn.Module):
 	expansion = 4
 
-	def __init__(self, in_planes, planes, stride=1, honeyrate):
+	def __init__(self, in_planes, planes, stride=1, honey, index):
 		super(Bottleneck, self).__init__()
 		self.conv1 = nn.Conv2d(in_planes, int(planes * honeyrate / 10), kernel_size=1, bias=False)
 		self.bn1 = nn.BatchNorm2d(int())
