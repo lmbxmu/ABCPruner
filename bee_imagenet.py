@@ -227,6 +227,8 @@ def calculationFitness(honey, args):
             .format(float(accurary.avg), (current_time - start_time))
         )
     '''
+    if fit_accurary.avg == 0:
+        fit_accurary = 0.01
 
     return fit_accurary.avg
 
