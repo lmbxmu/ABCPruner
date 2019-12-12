@@ -552,7 +552,7 @@ def main():
         model.load_state_dict(best_honey_state)
         checkpoint.save_honey_model(model.state_dict())
     elif args.arch == 'resnet':
-        model = import_module(f'model.{args.arch}').resnet(args.cfg,honey=honey).to(device)
+        model = import_module(f'model.{args.arch}').resnet(args.cfg,honey=best_honey.code).to(device)
         model.load_state_dict(best_honey_state)
         checkpoint.save_honey_model(model.state_dict())
     elif args.arch == 'googlenet':
