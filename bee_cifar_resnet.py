@@ -274,6 +274,8 @@ def test(model, testLoader):
 
 #Calculate fitness of a honey source
 def calculationFitness(honey, train_loader, args):
+    global best_honey
+    global best_honey_state
 
     if args.arch == 'vgg_cifar':
         model = import_module(f'model.{args.arch}').BeeVGG(args.cfg,honeysource=honey).to(device)
