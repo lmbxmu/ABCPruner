@@ -1,4 +1,3 @@
-#Save the state_dict while preserving the honey source
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -22,6 +21,16 @@ logger = utils.get_logger(os.path.join(args.job_dir + 'logger.log'))
 checkpoint = utils.checkpoint(args)
 loss_func = nn.CrossEntropyLoss()
 
+conv_num_cfg = {
+    'vgg_cifar': 13,
+    'resnet18' : 8,
+    'resnet34' : 16,
+    'resnet50' : 16,
+    'resnet101' : 33,
+    'resnet152' : 50 
+}
+food_dimension = conv_num_cfg[args.cfg]
+
 # Data
 print('==> Loading Data..')
 if args.data_set == 'cifar10':
@@ -36,8 +45,8 @@ else:
 print('==> Loading Model..')
 if args.arch == 'vgg_cifar':
      origin_model = import_module(f'model.{args.arch}').VGG(args.cfg).to(device)
-elif args.arch == 'resnet':
-    pass
+elif args.arch == 'resnet_cifar':
+    origin_model = import_module(f'model.{args.arch}').resnet(args.cfg).to(device)
 elif args.arch == 'googlenet':
     pass
 elif args.arch == 'densenet':
@@ -50,23 +59,6 @@ ckpt = torch.load(args.honey_model, map_location=device)
 origin_model.load_state_dict(ckpt['state_dict'])
 oristate_dict = origin_model.state_dict()
 
-
-#Define BeeGroup 
-class BeeGroup():
-    """docstring for BeeGroup"""
-    def __init__(self):
-        super(BeeGroup, self).__init__() 
-        self.code = [] #size : num of conv layers  value:{1,2,3,4,5,6,7,8,9,10}
-        self.fitness = 0
-        self.rfitness = 0 
-        self.trail = 0
-
-#Initilize global element
-best_honey = BeeGroup()
-NectraSource = []
-EmployedBee = []
-OnLooker = []
-best_honey_state = {}
 
 #load pre-train params
 def load_vgg_honey_model(model, random_rule):
@@ -111,7 +103,78 @@ def load_vgg_honey_model(model, random_rule):
                 last_select_index = None
 
     model.load_state_dict(state_dict)
-    return state_dict
+
+def load_resnet_honey_model(model):
+
+    cfg = {'resnet18': [2,2,2,2],
+           'resnet34': [3,4,6,3],
+           'resnet50': [3,4,6,3],
+           'resnet101': [3,4,23,3],
+           'resnet152': [3,8,36,3]}
+
+    global oristate_dict
+    state_dict = model.state_dict()
+
+
+    current_cfg = cfg[args.cfg]
+    last_select_index = None
+
+    all_honey_conv_weight = []
+
+    for layer, num in enumerate(current_cfg):
+        layer_name = 'layer' + str(layer + 1) + '.'
+        for i range(num):
+            if args.cfg == 'resnet18' or args.cfg == 'resnet34':
+                iter = 2 #the number of convolution layers in a block, except for shortcut
+            else:
+                iter = 3
+            for j in range(iter):
+                conv_name = layer_name + str(i) + '.conv' + str(j+1)
+                conv_weight_name = conv_name + '.weight'
+                all_honey_conv_weight.append(conv_weight_name)
+                oriweight = oristate_dict[conv_weight_name]
+                curweight = state_dict[conv_weight_name]
+                orifilter_num = oriweight.size(0)
+                currentfilter_num = curweight.size(0)
+
+                if orifilter_num != currentfilter_num and (random_rule == 'random_pretrain' or random_rule == 'l1_pretrain'):
+
+                    select_num = currentfilter_num
+                    if random_rule == 'random_pretrain':
+                        select_index = random.sample(range(0, orifilter_num-1), select_num)
+                        select_index.sort()
+                    else:
+                        l1_sum = list(torch.sum(torch.abs(oriweight), [1, 2, 3]))
+                        select_index = list(map(l1_sum.index, heapq.nlargest(currentfilter_num, l1_sum)))
+                        select_index.sort()
+                    if last_select_index is not None:
+                        for index_i, i in enumerate(select_index):
+                            for index_j, j in enumerate(last_select_index):
+                                state_dict[name + '.weight'][index_i][index_j] = \
+                                    oristate_dict[name + '.weight'][i][j]
+                    else:
+                        for index_i, i in enumerate(select_index):
+                            state_dict[name + '.weight'][index_i] = \
+                                oristate_dict[name + '.weight'][i]
+
+                    last_select_index = select_index
+
+                else:
+                    state_dict[name + '.weight'] = oriweight
+                    last_select_index = None
+
+    for name, module in model.named_modules():
+        if isinstance(module, nn.Conv2d):
+            conv_name = name + '.weight'
+            if conv_name not in all_honey_conv_weight:
+                state_dict[conv_name] = oristate_dict[conv_name]
+
+        elif isinstance(module, nn.Linear):
+            state_dict[name + '.weight'] = oristate_dict[name + '.weight']
+            state_dict[name + '.bias'] = oristate_dict[name + '.bias']
+
+    model.load_state_dict(state_dict)
+
 
 
 
@@ -177,15 +240,12 @@ def test(model, testLoader):
         )
     return accurary.avg
 
-
 #Calculate fitness of a honey source
 def calculationFitness(honey, train_loader, args):
-    global best_honey
-    global best_honey_state
 
     if args.arch == 'vgg_cifar':
         model = import_module(f'model.{args.arch}').BeeVGG(args.cfg,honeysource=honey).to(device)
-        state_dict = load_vgg_honey_model(model, args.random_rule)
+        load_vgg_honey_model(model, args.random_rule)
     elif args.arch == 'resnet':
         pass
     elif args.arch == 'googlenet':
@@ -235,13 +295,24 @@ def calculationFitness(honey, train_loader, args):
             .format(float(accurary.avg), (current_time - start_time))
         )
     '''
-    if fit_accurary.avg > best_honey.fitness:
-        best_honey_state = copy.deepcopy(model.state_dict())
-        
 
     return fit_accurary.avg
 
+#Define BeeGroup 
+class BeeGroup():
+    """docstring for BeeGroup"""
+    def __init__(self):
+        super(BeeGroup, self).__init__() 
+        self.code = [] #size : num of conv layers  value:{1,2,3,4,5,6,7,8,9,10}
+        self.fitness = 0
+        self.rfitness = 0 
+        self.trail = 0
 
+#Initilize global element
+best_honey = BeeGroup()
+NectraSource = []
+EmployedBee = []
+OnLooker = []
 
 #Initilize Bee-Pruning
 def initilize():
@@ -252,11 +323,10 @@ def initilize():
         NectraSource.append(copy.deepcopy(BeeGroup()))
         EmployedBee.append(copy.deepcopy(BeeGroup()))
         OnLooker.append(copy.deepcopy(BeeGroup()))
-        for j in range(args.food_dimension):
+        for j in range(food_dimension):
             NectraSource[i].code.append(copy.deepcopy(random.randint(1,args.max_preserve)))
 
         #initilize honey souce
-
         NectraSource[i].fitness = calculationFitness(NectraSource[i].code, loader.trainLoader, args)
         NectraSource[i].rfitness = 0
         NectraSource[i].trail = 0
@@ -291,7 +361,7 @@ def sendEmployedBees():
 
         EmployedBee[i].code = copy.deepcopy(NectraSource[i].code)
 
-        param2change = np.random.randint(0, args.food_dimension-1, args.honeychange_num)
+        param2change = np.random.randint(0, food_dimension-1, args.honeychange_num)
         R = np.random.uniform(-1, 1, args.honeychange_num)
         for j in range(args.honeychange_num):
             EmployedBee[i].code[param2change[j]] = int(NectraSource[i].code[param2change[j]]+ R[j]*(NectraSource[i].code[param2change[j]]-NectraSource[k].code[param2change[j]]))
@@ -303,7 +373,7 @@ def sendEmployedBees():
         EmployedBee[i].fitness = calculationFitness(EmployedBee[i].code, loader.trainLoader, args)
 
         if EmployedBee[i].fitness > NectraSource[i].fitness:                
-            NectraSource[i].code = copy.deepcopy(EmployedBee[i].code)           
+            NectraSource[i].code = copy.deepcopy(EmployedBee[i].code)              
             NectraSource[i].trail = 0  
             NectraSource[i].fitness = EmployedBee[i].fitness 
             
@@ -339,18 +409,16 @@ def sendOnlookerBees():
                     break
             OnLooker[i].code = copy.deepcopy(NectraSource[i].code)
 
-            param2change = np.random.randint(0, args.food_dimension-1, args.honeychange_num)
+            param2change = np.random.randint(0, food_dimension-1, args.honeychange_num)
             R = np.random.uniform(-1, 1, args.honeychange_num)
-
             for j in range(args.honeychange_num):
                 OnLooker[i].code[param2change[j]] = int(NectraSource[i].code[param2change[j]]+ R[j]*(NectraSource[i].code[param2change[j]]-NectraSource[k].code[param2change[j]]))
                 if OnLooker[i].code[param2change[j]] < 1:
                     OnLooker[i].code[param2change[j]] = 1
-                if args.preserve_type == 'layerwise':
-                    if OnLooker[i].code[param2change[j]] > args.max_preserve:
-                        OnLooker[i].code[param2change[j]] = args.max_preserve
+                if OnLooker[i].code[param2change[j]] > args.max_preserve:
+                    OnLooker[i].code[param2change[j]] = args.max_preserve
 
-            OnLooker[i].fitness= calculationFitness(OnLooker[i].code, loader.trainLoader, args)
+            OnLooker[i].fitness = calculationFitness(OnLooker[i].code, loader.trainLoader, args)
 
             if OnLooker[i].fitness > NectraSource[i].fitness:                
                 NectraSource[i].code = copy.deepcopy(OnLooker[i].code)              
@@ -370,7 +438,7 @@ def sendScoutBees():
         if NectraSource[i].trail > NectraSource[maxtrailindex].trail:
             maxtrailindex = i
     if NectraSource[maxtrailindex].trail >= args.food_limit:
-        for j in range(args.food_dimension):
+        for j in range(food_dimension):
             R = random.uniform(0,1)
             NectraSource[maxtrailindex].code[j] = int(R * args.max_preserve)
             if NectraSource[maxtrailindex].code[j] == 0:
@@ -383,8 +451,8 @@ def memorizeBestSource():
     global best_honey, NectraSource
     for i in range(args.food_number):
         if NectraSource[i].fitness > best_honey.fitness:
-            #print(NectraSource[i].fitness, NectraSource[i].code)
-            #print(best_honey.fitness, best_honey.code)
+            print(NectraSource[i].fitness, NectraSource[i].code)
+            print(best_honey.fitness, best_honey.code)
             best_honey.code = copy.deepcopy(NectraSource[i].code)
             best_honey.fitness = NectraSource[i].fitness
 
@@ -442,8 +510,7 @@ def main():
     print('==> Building model..')
     if args.arch == 'vgg_cifar':
         model = import_module(f'model.{args.arch}').BeeVGG(args.cfg, honeysource=best_honey.code).to(device)
-        model.load_state_dict(best_honey_state)
-        checkpoint.save_honey_model(model.state_dict())
+        load_vgg_honey_model(model, args.random_rule)
     elif args.arch == 'resnet':
         pass
     elif args.arch == 'googlenet':

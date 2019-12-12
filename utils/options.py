@@ -76,8 +76,8 @@ parser.add_argument(
 parser.add_argument(
     '--arch',
     type=str,
-    default='vgg',
-    help='Architecture of model. default:vgg'
+    default='vgg_cifar',
+    help='Architecture of model. default:vgg_cifar'
 )
 
 parser.add_argument(

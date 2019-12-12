@@ -3,6 +3,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+conv_num_cfg = {
+    'resnet18' : 8,
+    'resnet34' : 16,
+    'resnet50' : 16,
+    'resnet101' : 33,
+    'resnet152' : 50 
+}
 
 class BasicBlock(nn.Module):
     expansion = 1
@@ -100,7 +107,9 @@ class ResNet(nn.Module):
         out = self.fc(out)
         return out
 
-def resnet(cfg, honey, num_classes = 1000):
+def resnet(cfg, honey=None, num_classes = 1000):
+    if honey == None:
+        honey = conv_num_cfg[cfg] * [1]
     if cfg == 'resnet18':
     	return ResNet(BasicBlock, [2,2,2,2], num_classes=num_classes, honey=honey)
     elif cfg == 'resnet34':
