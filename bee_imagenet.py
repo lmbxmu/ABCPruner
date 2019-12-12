@@ -322,7 +322,7 @@ def calculationFitness(honey, args):
     for epoch in range(args.calfitness_epoch):
         for batch, batch_data in enumerate(trainLoader):
             i += 1
-            if i <= 10:
+            if i <= 5:
                 continue
             i = 0
             inputs = batch_data[0]['data'].to(device)
@@ -342,7 +342,7 @@ def calculationFitness(honey, args):
     with torch.no_grad():
         for batch_idx, batch_data in enumerate(testLoader):
             i += 1
-            if i < 10:
+            if i < 5:
                 continue
             i = 0
             inputs = batch_data[0]['data'].to(device)
@@ -517,7 +517,7 @@ def main():
     start_epoch = 0
     best_acc = 0.0
 
-    #test(origin_model, testLoader, topk=(1, 5))
+    test(origin_model, testLoader, topk=(1, 5))
 
     if args.best_honey == None:
 
