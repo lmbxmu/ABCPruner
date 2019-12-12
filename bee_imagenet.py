@@ -318,7 +318,7 @@ def calculationFitness(honey, args):
 
     trainLoader = get_data_set('train')
     for epoch in range(args.calfitness_epoch):
-        for batch, batch_data in enumerate(trainLoader,start):
+        for batch, batch_data in enumerate(trainLoader):
             inputs = batch_data[0]['data'].to(device)
             targets = batch_data[0]['label'].squeeze().long().to(device)
             optimizer.zero_grad()
@@ -333,7 +333,7 @@ def calculationFitness(honey, args):
     model.eval()
     testLoader = get_data_set('test')
     with torch.no_grad():
-        for batch_idx, batch_data in enumerate(testLoader,start):
+        for batch_idx, batch_data in enumerate(testLoader):
             inputs = batch_data[0]['data'].to(device)
             targets = batch_data[0]['label'].squeeze().long().to(device)
             outputs = model(inputs)
