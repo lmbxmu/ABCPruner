@@ -42,8 +42,8 @@ Save the state_dict while preserving the honey source
 python bee_cifar_resnet.py 
 --data_set cifar10 
 --data_path /home/lmb/cvpr_vgg2/data 
---honey_model ./experience/vgg16/baseline/checkpoint/vgg16.pt 
---job_dir ./experiment/vgg16 
+--honey_model ./experience/vgg16/baseline/checkpoint/resnet18_cifar10.pt 
+--job_dir ./experiment/resnet18
 --arch resnet 
 --cfg resnet18
 --lr 0.01 
@@ -58,8 +58,6 @@ python bee_cifar_resnet.py
 --food_limit 5 
 --random_rule random_pretrain
 
-
-
 ```
 
 ### BeePruning for Pre-trained model ----Cifar
@@ -68,7 +66,7 @@ python bee_cifar_resnet.py
 python bee_cifar.py 
 --data_set cifar10 
 --data_path /home/lmb/cvpr_vgg2/data 
---honey_model ./experience/vgg16/baseline/checkpoint/vgg16.pt 
+--honey_model ./experience/vgg16/baseline/checkpoint/vgg16_cifar10.pt  
 --job_dir ./experiment/vgg16 
 --arch vgg_cifar 
 --cfg vgg16 
@@ -92,7 +90,7 @@ Save the selected channel while preserving the honey source
 python bee_cifar_version2.py 
 --data_set cifar10 
 --data_path /home/lmb/cvpr_vgg2/data 
---honey_model ./experience/vgg16/baseline/checkpoint/vgg16.pt 
+--honey_model ./experience/vgg16/baseline/checkpoint/vgg16_cifar10.pt  
 --job_dir ./experiment/vgg16 
 --arch vgg_cifar 
 --cfg vgg16 
@@ -116,7 +114,7 @@ Save the state_dict while preserving the honey source
 python bee_cifar_version3.py 
 --data_set cifar10 
 --data_path /home/lmb/cvpr_vgg2/data 
---honey_model ./experience/vgg16/baseline/checkpoint/vgg16.pt 
+--honey_model ./experience/vgg16/baseline/checkpoint/vgg16_cifar10.pt  
 --job_dir ./experiment/vgg16 
 --arch vgg_cifar 
 --cfg vgg16 
@@ -135,13 +133,13 @@ python bee_cifar_version3.py
 
 
 ```
-### BeePruning for Pre-trained model ----Imagenet
+### BeePruning for Pre-trained model ----VGG Imagenet
 
 ```shell
 python bee_imagenet.py 
 --data_path /home/sda4/data/ImageNet2012 
 --honey_model ./experience/vgg16/baseline/checkpoint/vgg16_imagenet.pth 
---job_dir ./experiment/vgg16_imagnet 
+--job_dir ./experiment/vgg16_imagenet 
 --arch vgg 
 --cfg vgg16 
 --lr 0.01 
@@ -156,9 +154,34 @@ python bee_imagenet.py
 --food_limit 5 
 --random_rule random_pretrain
 
-### Other optional arguments
+
 
 ```
+### BeePruning for Pre-trained model ----VGG Imagenet Version3
+
+```shell
+python bee_imagenet_version3.py 
+--data_path /home/sda4/data/ImageNet2012 
+--honey_model ./experience/vgg16/baseline/checkpoint/vgg16_imagenet.pth 
+--job_dir ./experiment/vgg16_imagenet 
+--arch vgg 
+--cfg vgg16 
+--lr 0.01 
+--lr_decay_step 75 112 
+--num_epochs 150 
+--gpus 0 
+--calfitness_epoch 2 
+--max_cycle 50 
+--max_preserve 9 
+--food_number 10 
+--food_dimension 13 
+--food_limit 5 
+--random_rule random_pretrain
+
+
+
+```
+### Other optional arguments
 optional arguments:
   -h, --help            show this help message and exit
   --gpus GPUS [GPUS ...]
