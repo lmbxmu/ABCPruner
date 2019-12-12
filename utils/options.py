@@ -227,7 +227,13 @@ args = parser.parse_args()
 
 netcfg = {
     'vgg16':13,
-    'resnet18':18
+    'resnet18':8,
+    'resnet56':27,
+    'resnet110':54,
+    'resnet34' : 16,
+    'resnet56' : 16,
+    'resnet101' : 33,
+    'resnet152' : 50 
 }
 
 args.food_dimension = netcfg[args.cfg]

@@ -15,9 +15,10 @@ from data import imagenet_dali
 from importlib import import_module
 
 conv_num_cfg = {
+    'vgg16' : 13,
 	'resnet18' : 8,
 	'resnet34' : 16,
-	'resnet50' : 16,
+	'resnet56' : 16,
 	'resnet101' : 33,
 	'resnet152' : 50 
 }
@@ -317,8 +318,13 @@ def calculationFitness(honey, args):
     model.train()
 
     trainLoader = get_data_set('train')
+    i = 0
     for epoch in range(args.calfitness_epoch):
         for batch, batch_data in enumerate(trainLoader):
+            i += 1
+            if i <= 10:
+                continue
+            i = 0
             inputs = batch_data[0]['data'].to(device)
             targets = batch_data[0]['label'].squeeze().long().to(device)
             optimizer.zero_grad()
@@ -332,8 +338,13 @@ def calculationFitness(honey, args):
     fit_accurary = utils.AverageMeter()
     model.eval()
     testLoader = get_data_set('test')
+    i = 0
     with torch.no_grad():
         for batch_idx, batch_data in enumerate(testLoader):
+            i += 1
+            if i < 10:
+                continue
+            i = 0
             inputs = batch_data[0]['data'].to(device)
             targets = batch_data[0]['label'].squeeze().long().to(device)
             outputs = model(inputs)
@@ -353,6 +364,8 @@ def calculationFitness(honey, args):
 
     if fit_accurary.avg > best_honey.fitness:
         best_honey_state = copy.deepcopy(model.state_dict())
+        best_honey.code = copy.deepcopy(honey)
+        best_honey.fitness = fit_accurary.avg
 
     return fit_accurary.avg
 
@@ -504,7 +517,7 @@ def main():
     start_epoch = 0
     best_acc = 0.0
 
-    test(origin_model, testLoader, topk=(1, 5))
+    #test(origin_model, testLoader, topk=(1, 5))
 
     if args.best_honey == None:
 
@@ -516,7 +529,7 @@ def main():
 
         initilize()
 
-        memorizeBestSource()
+        #memorizeBestSource()
 
         for cycle in range(args.max_cycle):
 
@@ -533,11 +546,11 @@ def main():
               
             sendOnlookerBees()  
               
-            memorizeBestSource() 
+            #memorizeBestSource() 
               
             sendScoutBees() 
               
-            memorizeBestSource() 
+            #memorizeBestSource() 
 
         print('==> BeePruning Complete!')
         

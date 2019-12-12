@@ -62,13 +62,14 @@ python bee_imagenet.py
 ### BeePruning for Pre-trained model ----Cifar resnet
 Save the state_dict while preserving the honey source
 ```shell
-python bee_cifar.py 
+
+python bee_cifar.py
 --data_set cifar10 
 --data_path /home/lmb/cvpr_vgg2/data 
---honey_model ./experience/vgg16/baseline/checkpoint/resnet18_cifar10.pt 
---job_dir ./experiment/resnet18
+--honey_model ./experience/resnet/baseline/checkpoint/resnet_56.pt 
+--job_dir ./experiment/resnet56 
 --arch resnet_cifar 
---cfg resnet18
+--cfg resnet56 
 --lr 0.01 
 --lr_decay_step 75 112 
 --num_epochs 150 
@@ -132,30 +133,7 @@ python bee_imagenet.py
 
 
 ```
-### BeePruning for Pre-trained model ----VGG Imagenet Version3
 
-```shell
-python bee_imagenet.py 
---data_path /home/sda4/data/ImageNet2012 
---honey_model ./experience/vgg16/baseline/checkpoint/vgg16_imagenet.pth 
---job_dir ./experiment/vgg16_imagenet 
---arch vgg 
---cfg vgg16 
---lr 0.01 
---lr_decay_step 75 112 
---num_epochs 150 
---gpus 0 
---calfitness_epoch 2 
---max_cycle 50 
---max_preserve 9 
---food_number 10 
---food_dimension 13 
---food_limit 5 
---random_rule random_pretrain
-
-
-
-```
 ### Other optional arguments
 optional arguments:
   -h, --help            show this help message and exit

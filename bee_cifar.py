@@ -23,12 +23,9 @@ loss_func = nn.CrossEntropyLoss()
 
 conv_num_cfg = {
     'vgg16': 13,
-    'resnet18' : 8,
-    'resnet34' : 16,
-    'resnet50' : 16,
-    'resnet101' : 33,
-    'resnet152' : 50 
-}
+    'resnet56' : 27,
+    'resnet110' : 54,
+    }
 food_dimension = conv_num_cfg[args.cfg]
 
 # Data
@@ -125,11 +122,10 @@ def load_vgg_honey_model(model, random_rule):
 
 def load_resnet_honey_model(model, random_rule):
 
-    cfg = {'resnet18': [2,2,2,2],
-           'resnet34': [3,4,6,3],
-           'resnet50': [3,4,6,3],
-           'resnet101': [3,4,23,3],
-           'resnet152': [3,8,36,3]}
+    cfg = { 
+           'resnet56': [9,9,9],
+           'resnet110': [18,18,18],
+           }
 
     global oristate_dict
     state_dict = model.state_dict()
@@ -142,11 +138,7 @@ def load_resnet_honey_model(model, random_rule):
     for layer, num in enumerate(current_cfg):
         layer_name = 'layer' + str(layer + 1) + '.'
         for k in range(num):
-            if args.cfg == 'resnet18' or args.cfg == 'resnet34':
-                iter = 2 #the number of convolution layers in a block, except for shortcut
-            else:
-                iter = 3
-            for l in range(iter):
+            for l in range(2):
                 conv_name = layer_name + str(k) + '.conv' + str(l+1)
                 conv_weight_name = conv_name + '.weight'
                 all_honey_conv_weight.append(conv_weight_name)
