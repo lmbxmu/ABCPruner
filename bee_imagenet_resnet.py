@@ -68,6 +68,23 @@ for param_tensor in origin_model.state_dict():
 origin_model.load_state_dict(ckpt)
 oristate_dict = origin_model.state_dict()
 
+#Define BeeGroup 
+class BeeGroup():
+    """docstring for BeeGroup"""
+    def __init__(self):
+        super(BeeGroup, self).__init__() 
+        self.code = [] #size : num of conv layers  value:{1,2,3,4,5,6,7,8,9,10}
+        self.fitness = 0
+        self.rfitness = 0 
+        self.trail = 0
+
+#Initilize global element
+best_honey = BeeGroup()
+NectraSource = []
+EmployedBee = []
+OnLooker = []
+best_honey_state = {}
+
 #load pre-train params
 def load_vgg_honey_model(model, random_rule):
     #print(ckpt['state_dict'])
@@ -112,6 +129,93 @@ def load_vgg_honey_model(model, random_rule):
 
     model.load_state_dict(state_dict)
 
+def load_resnet_honey_model(model, random_rule):
+
+    cfg = {'resnet18': [2,2,2,2],
+           'resnet34': [3,4,6,3],
+           'resnet50': [3,4,6,3],
+           'resnet101': [3,4,23,3],
+           'resnet152': [3,8,36,3]}
+
+    global oristate_dict
+    state_dict = model.state_dict()
+        
+    current_cfg = cfg[args.cfg]
+    last_select_index = None
+
+    all_honey_conv_weight = []
+
+    for layer, num in enumerate(current_cfg):
+        layer_name = 'layer' + str(layer + 1) + '.'
+        for k in range(num):
+            if args.cfg == 'resnet18' or args.cfg == 'resnet34':
+                iter = 2 #the number of convolution layers in a block, except for shortcut
+            else:
+                iter = 3
+            for l in range(iter):
+                conv_name = layer_name + str(k) + '.conv' + str(l+1)
+                conv_weight_name = conv_name + '.weight'
+                all_honey_conv_weight.append(conv_weight_name)
+                oriweight = oristate_dict[conv_weight_name]
+                curweight = state_dict[conv_weight_name]
+                orifilter_num = oriweight.size(0)
+                currentfilter_num = curweight.size(0)
+                #logger.info('weight_num {}'.format(conv_weight_name))
+                #logger.info('orifilter_num {}\tcurrentnum {}\n'.format(orifilter_num,currentfilter_num))
+                #logger.info('orifilter  {}\tcurrent {}\n'.format(oristate_dict[conv_weight_name].size(),state_dict[conv_weight_name].size()))
+
+                if orifilter_num != currentfilter_num and (random_rule == 'random_pretrain' or random_rule == 'l1_pretrain'):
+
+                    select_num = currentfilter_num
+                    if random_rule == 'random_pretrain':
+                        select_index = random.sample(range(0, orifilter_num-1), select_num)
+                        select_index.sort()
+                    else:
+                        l1_sum = list(torch.sum(torch.abs(oriweight), [1, 2, 3]))
+                        select_index = list(map(l1_sum.index, heapq.nlargest(currentfilter_num, l1_sum)))
+                        select_index.sort()
+                    if last_select_index is not None:
+                        logger.info('last_select_index'.format(last_select_index))
+                        for index_i, i in enumerate(select_index):
+                            for index_j, j in enumerate(last_select_index):
+                                state_dict[conv_weight_name][index_i][index_j] = \
+                                    oristate_dict[conv_weight_name][i][j]
+                    else:
+                        for index_i, i in enumerate(select_index):
+                            state_dict[conv_weight_name][index_i] = \
+                                oristate_dict[conv_weight_name][i]  
+
+                    last_select_index = select_index
+                    #logger.info('last_select_index{}'.format(last_select_index)) 
+
+                elif last_select_index != None:
+                    for index_i in range(orifilter_num):
+                        for index_j, j in enumerate(last_select_index):
+                            state_dict[conv_weight_name][index_i][index_j] = \
+                                oristate_dict[conv_weight_name][index_i][j]
+                    last_select_index = None
+
+                else:
+                    state_dict[conv_weight_name] = oriweight
+                    last_select_index = None
+
+    for name, module in model.named_modules():
+        if isinstance(module, nn.Conv2d):
+            conv_name = name + '.weight'
+            if conv_name not in all_honey_conv_weight:
+                state_dict[conv_name] = oristate_dict[conv_name]
+
+        elif isinstance(module, nn.Linear):
+            state_dict[name + '.weight'] = oristate_dict[name + '.weight']
+            state_dict[name + '.bias'] = oristate_dict[name + '.bias']
+
+    #for param_tensor in state_dict:
+        #logger.info('param_tensor {}\tType {}\n'.format(param_tensor,state_dict[param_tensor].size()))
+    #for param_tensor in model.state_dict():
+        #logger.info('param_tensor {}\tType {}\n'.format(param_tensor,model.state_dict()[param_tensor].size()))
+ 
+
+    model.load_state_dict(state_dict)
 # Training
 def train(model, optimizer, trainLoader, args, epoch, topk=(1,)):
 
@@ -189,7 +293,8 @@ def calculationFitness(honey, args):
         model = import_module(f'model.{args.arch}').BeeVGG(honeysource=honey, num_classes=1000).to(device)
         load_vgg_honey_model(model, args.random_rule)
     elif args.arch == 'resnet':
-        pass
+        model = import_module(f'model.{args.arch}').resnet(args.cfg,honey=honey).to(device)
+        load_resnet_honey_model(model, args.random_rule)
     elif args.arch == 'googlenet':
         pass
     elif args.arch == 'densenet':
@@ -240,23 +345,12 @@ def calculationFitness(honey, args):
     if fit_accurary.avg == 0:
         fit_accurary.avg = 0.01
 
+    if fit_accurary.avg > best_honey.fitness:
+        best_honey_state = copy.deepcopy(model.state_dict())
+
     return fit_accurary.avg
 
-#Define BeeGroup 
-class BeeGroup():
-    """docstring for BeeGroup"""
-    def __init__(self):
-        super(BeeGroup, self).__init__() 
-        self.code = [] #size : num of conv layers  value:{1,2,3,4,5,6,7,8,9,10}
-        self.fitness = 0
-        self.rfitness = 0 
-        self.trail = 0
 
-#Initilize global element
-best_honey = BeeGroup()
-NectraSource = []
-EmployedBee = []
-OnLooker = []
 
 #Initilize Bee-Pruning
 def initilize():
@@ -455,13 +549,18 @@ def main():
     print('==> Building model..')
     if args.arch == 'vgg':
         model = import_module(f'model.{args.arch}').BeeVGG(honeysource=best_honey.code, num_classes = 1000).to(device)
-        load_vgg_honey_model(model, args.random_rule)
+        model.load_state_dict(best_honey_state)
+        checkpoint.save_honey_model(model.state_dict())
     elif args.arch == 'resnet':
-        pass
+        model = import_module(f'model.{args.arch}').resnet(args.cfg,honey=honey).to(device)
+        model.load_state_dict(best_honey_state)
+        checkpoint.save_honey_model(model.state_dict())
     elif args.arch == 'googlenet':
         pass
     elif args.arch == 'densenet':
         pass
+
+        
 
     print(args.random_rule + ' Done!')
 

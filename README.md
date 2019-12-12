@@ -44,7 +44,7 @@ python bee_cifar_resnet.py
 --data_path /home/lmb/cvpr_vgg2/data 
 --honey_model ./experience/vgg16/baseline/checkpoint/resnet18_cifar10.pt 
 --job_dir ./experiment/resnet18
---arch resnet 
+--arch resnet_cifar 
 --cfg resnet18
 --lr 0.01 
 --lr_decay_step 75 112 
