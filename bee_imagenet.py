@@ -323,7 +323,8 @@ def calculationFitness(honey, args):
         #print(epoch)
         for batch, batch_data in enumerate(trainLoader):
             i += 1
-            if i <= 5:
+            #print(i)
+            if i <= 10:
                 continue
             i = 0
             inputs = batch_data[0]['data'].to(device)
@@ -342,8 +343,9 @@ def calculationFitness(honey, args):
     i = 0
     with torch.no_grad():
         for batch_idx, batch_data in enumerate(testLoader):
+            #print(i)
             i += 1
-            if i < 5:
+            if i < 10:
                 continue
             i = 0
             inputs = batch_data[0]['data'].to(device)

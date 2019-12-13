@@ -132,7 +132,30 @@ python bee_imagenet.py
 
 
 ```
+### BeePruning for Pre-trained model ----Cifar googlenet
 
+```shell
+
+python bee_cifar.py
+--data_set cifar10 
+--data_path /home/lmb/cvpr_vgg2/data 
+--honey_model ./experience/googlenet/baseline/checkpoint/google.pt 
+--job_dir ./experiment/googlenet
+--arch googlenet
+--cfg googlenet
+--lr 0.01 
+--lr_decay_step 75 112 
+--num_epochs 150 
+--gpus 0 
+--calfitness_epoch 2 
+--max_cycle 50 
+--max_preserve 9 
+--food_number 10 
+--food_dimension 13 
+--food_limit 5 
+--random_rule random_pretrain
+
+```
 ## Other Arguments
 
 ```shell

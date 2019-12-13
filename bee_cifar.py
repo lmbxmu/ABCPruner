@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-#from model.googlenet import Inception
+from model.googlenet import Inception
 from utils.options import args
 import utils.common as utils
 
@@ -24,6 +24,7 @@ conv_num_cfg = {
     'vgg16': 13,
     'resnet56' : 27,
     'resnet110' : 54,
+    'googlenet' : 9,
     }
 food_dimension = conv_num_cfg[args.cfg]
 
@@ -44,7 +45,7 @@ if args.arch == 'vgg_cifar':
 elif args.arch == 'resnet_cifar':
     origin_model = import_module(f'model.{args.arch}').resnet(args.cfg).to(device)
 elif args.arch == 'googlenet':
-    pass
+    origin_model = import_module(f'model.{args.arch}').googlenet().to(device)
 elif args.arch == 'densenet':
     pass
 
@@ -118,6 +119,160 @@ def load_vgg_honey_model(model, random_rule):
                 last_select_index = None
 
     model.load_state_dict(state_dict)
+
+def load_google_honey_model(model, random_rule):
+    global oristate_dict
+    state_dict = model.state_dict()
+        
+    last_select_index = None
+    all_honey_conv_name = []
+    all_honey_bn_name = []
+
+    for name, module in model.named_modules():
+
+        if isinstance(module, Inception):
+
+            honey_filter_channel_index = ['.branch5x5.3']  # the index of sketch filter and channel weight
+            honey_channel_index = ['.branch3x3.3', '.branch5x5.6']  # the index of sketch channel weight
+            honey_filter_index = ['.branch3x3.0', '.branch5x5.0']  # the index of sketch filter weight
+            honey_bn_index = ['.branch3x3.1', '.branch5x5.1', '.branch5x5.4'] #the index of sketch bn weight
+            
+            for bn_index in honey_bn_index:
+                all_honey_bn_name.append(name + bn_index)
+
+            for weight_index in honey_filter_channel_index:
+                last_select_index = None
+                conv_name = name + weight_index + '.weight'
+                all_honey_conv_name.append(name + weight_index)
+
+                oriweight = oristate_dict[conv_name]
+                curweight = state_dict[conv_name]
+
+                orifilter_num = oriweight.size(1)
+                currentfilter_num = curweight.size(1)
+
+                if orifilter_num != currentfilter_num and (random_rule == 'random_pretrain' or random_rule == 'l1_pretrain'):
+
+                    select_num = currentfilter_num
+                    if random_rule == 'random_pretrain':
+                        select_index = random.sample(range(0, orifilter_num-1), select_num)
+                        select_index.sort()
+                    else:
+                        l1_sum = list(torch.sum(torch.abs(oriweight), [1, 2, 3]))
+                        select_index = list(map(l1_sum.index, heapq.nlargest(currentfilter_num, l1_sum)))
+                        select_index.sort()
+
+                    #print(state_dict[conv_name].size())
+                    #print(oristate_dict[conv_name].size())
+
+                
+
+
+                orifilter_num = oriweight.size(0)
+                currentfilter_num = curweight.size(0)
+
+
+                select_index_1 = copy.deepcopy(select_index)
+
+
+                if orifilter_num != currentfilter_num and (random_rule == 'random_pretrain' or random_rule == 'l1_pretrain'):
+
+                    select_num = currentfilter_num
+                    if random_rule == 'random_pretrain':
+                        select_index = random.sample(range(0, orifilter_num-1), select_num)
+                        select_index.sort()
+                    else:
+                        l1_sum = list(torch.sum(torch.abs(oriweight), [1, 2, 3]))
+                        select_index = list(map(l1_sum.index, heapq.nlargest(currentfilter_num, l1_sum)))
+                        select_index.sort()
+
+                for index_i, i in enumerate(select_index):
+                    for index_j, j in enumerate(select_index_1):
+                            state_dict[conv_name][index_i][index_j] = \
+                                oristate_dict[conv_name][i][j]
+
+
+
+            for weight_index in honey_channel_index:
+
+                conv_name = name + weight_index + '.weight'
+                all_honey_conv_name.append(name + weight_index)
+
+                oriweight = oristate_dict[conv_name]
+                curweight = state_dict[conv_name]
+                orifilter_num = oriweight.size(1)
+                currentfilter_num = curweight.size(1)
+
+                #print(state_dict[conv_name].size())
+                #print(oristate_dict[conv_name].size())
+
+
+                if orifilter_num != currentfilter_num and (random_rule == 'random_pretrain' or random_rule == 'l1_pretrain'):
+
+                    select_num = currentfilter_num
+                    if random_rule == 'random_pretrain':
+                        select_index = random.sample(range(0, orifilter_num-1), select_num)
+                        select_index.sort()
+                    else:
+                        l1_sum = list(torch.sum(torch.abs(oriweight), [1, 2, 3]))
+                        select_index = list(map(l1_sum.index, heapq.nlargest(currentfilter_num, l1_sum)))
+                        select_index.sort()
+
+
+                    for i in range(state_dict[conv_name].size(0)):
+                        for index_j, j in enumerate(select_index):
+                            state_dict[conv_name][i][index_j] = \
+                                oristate_dict[conv_name][i][j]
+
+
+            for weight_index in honey_filter_index:
+
+                conv_name = name + weight_index + '.weight'
+                all_honey_conv_name.append(name + weight_index)
+                oriweight = oristate_dict[conv_name]
+                curweight = state_dict[conv_name]
+
+                orifilter_num = oriweight.size(0)
+                currentfilter_num = curweight.size(0)
+
+                if orifilter_num != currentfilter_num and (random_rule == 'random_pretrain' or random_rule == 'l1_pretrain'):
+
+                    select_num = currentfilter_num
+                    if random_rule == 'random_pretrain':
+                        select_index = random.sample(range(0, orifilter_num-1), select_num)
+                        select_index.sort()
+                    else:
+                        l1_sum = list(torch.sum(torch.abs(oriweight), [1, 2, 3]))
+                        select_index = list(map(l1_sum.index, heapq.nlargest(currentfilter_num, l1_sum)))
+                        select_index.sort()
+
+                    for index_i, i in enumerate(select_index):
+                            state_dict[conv_name][index_i] = \
+                                oristate_dict[conv_name][i]
+
+
+    for name, module in model.named_modules(): #Reassign non sketch weights to the new network
+
+        if isinstance(module, nn.Conv2d):
+
+            if name not in all_honey_conv_name:
+                state_dict[name + '.weight'] = oristate_dict[name + '.weight']
+                state_dict[name + '.bias'] = oristate_dict[name + '.bias']
+
+        elif isinstance(module, nn.BatchNorm2d):
+
+            if name not in all_honey_bn_name:
+                state_dict[name + '.weight'] = oristate_dict[name + '.weight']
+                state_dict[name + '.bias'] = oristate_dict[name + '.bias']
+                state_dict[name + '.running_mean'] = oristate_dict[name + '.running_mean']
+                state_dict[name + '.running_var'] = oristate_dict[name + '.running_var']
+
+        elif isinstance(module, nn.Linear):
+            state_dict[name + '.weight'] = oristate_dict[name + '.weight']
+            state_dict[name + '.bias'] = oristate_dict[name + '.bias']
+
+    model.load_state_dict(state_dict)
+
 
 def load_resnet_honey_model(model, random_rule):
 
@@ -201,6 +356,8 @@ def load_resnet_honey_model(model, random_rule):
  
 
     model.load_state_dict(state_dict)
+
+
 # Training
 def train(model, optimizer, trainLoader, args, epoch):
 
@@ -275,12 +432,15 @@ def calculationFitness(honey, train_loader, args):
         model = import_module(f'model.{args.arch}').resnet(args.cfg,honey=honey).to(device)
         load_resnet_honey_model(model, args.random_rule)
     elif args.arch == 'googlenet':
-        pass
+        model = import_module(f'model.{args.arch}').googlenet(honey=honey).to(device)
+        load_google_honey_model(model, args.random_rule)
     elif args.arch == 'densenet':
         pass
 
     fit_accurary = utils.AverageMeter()
     train_accurary = utils.AverageMeter()
+
+
 
     #start_time = time.time()
     if len(args.gpus) != 1:
@@ -294,6 +454,7 @@ def calculationFitness(honey, train_loader, args):
     for epoch in range(args.calfitness_epoch):
         for batch, (inputs, targets) in enumerate(train_loader):
             inputs, targets = inputs.to(device), targets.to(device)
+            #print("ok")
             optimizer.zero_grad()
             output = model(inputs)
             loss = loss_func(output, targets)
@@ -532,7 +693,9 @@ def main():
         model.load_state_dict(best_honey_state)
         checkpoint.save_honey_model(model.state_dict())
     elif args.arch == 'googlenet':
-        pass
+        model = import_module(f'model.{args.arch}').googlenet(honey=best_honey.code).to(device)
+        model.load_state_dict(best_honey_state)
+        checkpoint.save_honey_model(model.state_dict())
     elif args.arch == 'densenet':
         pass
 

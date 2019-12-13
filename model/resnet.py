@@ -110,7 +110,7 @@ def resnet(cfg, honey= None, num_classes = 1000):
     if honey == None:
         honey = conv_num_cfg[cfg] * [10]
     if cfg == 'resnet18':
-    	return ResNet(BasicBlock, [2,2,2,2], num_classes=num_classes, honey=honey)
+        return ResNet(BasicBlock, [2,2,2,2], num_classes=num_classes, honey=honey)
     elif cfg == 'resnet34':
         return ResNet(BasicBlock, [3,4,6,3], num_classes=num_classes, honey=honey)
     elif cfg == 'resnet50':
