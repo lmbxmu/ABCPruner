@@ -15,14 +15,11 @@ Additionally, we provide several pre-trained models used in our experiments.
 
 #### CIFAR-10
 
-| [VGG16](https://drive.google.com/open?id=1iqcLZyMTnciVLiKOHNaKbeXixK0KOzuX) | [ResNet18](https://drive.google.com/open?id=1NuzORsV2O8QfkbCV72EtKp1iZQCBAnB1) | [ResNet34](https://drive.google.com/open?id=1_P3zNbtTpery4jjAu4o43-WjlPc6ot81) | [ResNet50](https://drive.google.com/open?id=1MihR1PxF7ibhOPnnC-FAQci9KC2tVoKL) | [ResNet101](https://drive.google.com/open?id=14q3u3fYeFUHcBRKUtx_MGIjBtJxfTVRM) | [ResNet152](https://drive.google.com/open?id=1FQKqA2WrD0o0qxlhPRC1RXImppoBC91b) | 
+| [VGG16](https://drive.google.com/open?id=1pz-_0CCdL-1psIQ545uJ3xT6S_AAnqet) | [ResNet56](https://drive.google.com/open?id=1pt-LgK3kI_4ViXIQWuOP0qmmQa3p2qW5) | [ResNet110](https://drive.google.com/open?id=1Uqg8_J-q2hcsmYTAlRtknCSrkXDqYDMD) |[GoogLeNet](https://drive.google.com/open?id=1YNno621EuTQTVY2cElf8YEue9J4W5BEd) | [DenseNet40](https://drive.google.com/open?id=1TV_b98le-R0sDIkhc5pfrO6zn4uggOWl) | 
 
 #### ImageNet
 
-| [VGG16](https://download.pytorch.org/models/vgg16_bn-6c64b313.pth) | 
-|[ResNet18](https://download.pytorch.org/models/resnet18-5c106cde.pth) | [ResNet34](https://download.pytorch.org/models/resnet34-333f7ec4.pth) | [ResNet50](https://download.pytorch.org/models/resnet50-19c8e357.pth) | [ResNet101](https://download.pytorch.org/models/resnet101-5d3b4d8f.pth) | [ResNet152](https://download.pytorch.org/models/resnet152-b121ed2d.pth)|
-|[GoogLeNet](https://download.pytorch.org/models/googlenet-1378be20.pth)|
-|[DenseNet121](https://drive.google.com/open?id=1-ZZu8yGmh518F6621BvHwBZ7NV17wf-9)|[DenseNet161](https://drive.google.com/open?id=1lNWiyyeQKtsldO7iFNmQ11WLNUNH22Jr)|[DenseNet169](https://drive.google.com/open?id=10iScGCR4QY6ZkghATkEaa61-F8buW3fB)|[DenseNet201](https://drive.google.com/open?id=1DZytePACQJyXbgLX_KIUDJRHAerUo4OT)|
+|[ResNet18](https://download.pytorch.org/models/resnet18-5c106cde.pth) | [ResNet34](https://download.pytorch.org/models/resnet34-333f7ec4.pth) | [ResNet50](https://download.pytorch.org/models/resnet50-19c8e357.pth) |
 
 ### Train from scratch
 
@@ -35,6 +32,32 @@ python main.py
 --gpus 0 
 --job_dir ./experiment/vgg16
 ```
+
+### BeePruning for Pre-trained model ----Cifar resnet
+
+```shell
+
+python bee_cifar.py
+--data_set cifar10 
+--data_path /home/lmb/cvpr_vgg2/data 
+--honey_model ./experience/resnet/baseline/checkpoint/resnet_56.pt 
+--job_dir ./experiment/resnet56 
+--arch resnet_cifar 
+--cfg resnet56 
+--lr 0.01 
+--lr_decay_step 75 112 
+--num_epochs 150 
+--gpus 0 
+--calfitness_epoch 2 
+--max_cycle 50 
+--max_preserve 9 
+--food_number 10 
+--food_dimension 13 
+--food_limit 5 
+--random_rule random_pretrain
+
+```
+
 ### BeePruning for Pre-trained model ----Resnet Imagenet
 
 ```shell
@@ -59,34 +82,10 @@ python bee_imagenet.py
 
 ```
 
-### BeePruning for Pre-trained model ----Cifar resnet
-Save the state_dict while preserving the honey source
-```shell
-
-python bee_cifar.py
---data_set cifar10 
---data_path /home/lmb/cvpr_vgg2/data 
---honey_model ./experience/resnet/baseline/checkpoint/resnet_56.pt 
---job_dir ./experiment/resnet56 
---arch resnet_cifar 
---cfg resnet56 
---lr 0.01 
---lr_decay_step 75 112 
---num_epochs 150 
---gpus 0 
---calfitness_epoch 2 
---max_cycle 50 
---max_preserve 9 
---food_number 10 
---food_dimension 13 
---food_limit 5 
---random_rule random_pretrain
-
-```
 
 
 ### BeePruning for Pre-trained model ----Cifar VGG
-Save the state_dict while preserving the honey source
+
 ```shell
 python bee_cifar.py 
 --data_set cifar10 
@@ -134,7 +133,9 @@ python bee_imagenet.py
 
 ```
 
-### Other optional arguments
+## Other Arguments
+
+```shell
 optional arguments:
   -h, --help            show this help message and exit
   --gpus GPUS [GPUS ...]
@@ -162,5 +163,28 @@ optional arguments:
                         the iterval of learn rate. default:50, 100
   --weight_decay WEIGHT_DECAY
                         The weight decay of loss. default:5e-4
-```
+  --start_conv START_CONV
+                        The index of Conv to start sketch, index starts from
+                        0. default:1
+  --sketch_rate SKETCH_RATE
+                        The rate of each sketch conv. default:None
+  --sketch_model SKETCH_MODEL
+                        Path to the model wait for sketch. default:None
+  --sketch_bn SKETCH_BN
+                        Whether the BN weights are sketched or not?
+                        default:False
+  --weight_norm_method WEIGHT_NORM_METHOD
+                        Select the weight norm method. default:None
+                        Optional:max,sum,l2,l1,l2_2,2max
+  --filter_norm FILTER_NORM
+                        Filter level normalization or not? default:False
+  --sketch_lastconv SKETCH_LASTCONV
+                        Is the last layer of convolution sketched?
+                        default:True
+  --random_rule RANDOM_RULE
+                        Weight initialization criterion after random clipping.
+                        default:default
+                        optional:default,random_pretrain,l1_pretrain
+  --test_only           Test only?
 
+```

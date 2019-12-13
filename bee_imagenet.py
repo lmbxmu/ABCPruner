@@ -320,6 +320,7 @@ def calculationFitness(honey, args):
     trainLoader = get_data_set('train')
     i = 0
     for epoch in range(args.calfitness_epoch):
+        #print(epoch)
         for batch, batch_data in enumerate(trainLoader):
             i += 1
             if i <= 5:

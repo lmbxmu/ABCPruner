@@ -24,6 +24,18 @@ class AverageMeter(object):
         self.count += n
         self.avg = self.sum / self.count
 
+
+def ensure_path(directory):
+    directory = Path(directory)
+    directory.mkdir(parents=True,exist_ok=True)
+ 
+def mkdir(path):
+    if not os.path.isdir(path):
+        mkdir(os.path.split(path)[0])  
+    else:
+        return
+    os.mkdir(path)
+
 '''Save model and record configurations'''
 class checkpoint():
     def __init__(self, args):
@@ -35,11 +47,13 @@ class checkpoint():
         self.ckpt_dir = self.job_dir / 'checkpoint'
         self.run_dir = self.job_dir / 'run'
 
+
         if args.reset:
             os.system('rm -rf' + args.job_dir)
 
         def _make_dir(path):
             if not os.path.exists(path):
+                #print("pathdonotexist")
                 os.makedirs(path)
 
         _make_dir(self.job_dir)
@@ -68,6 +82,7 @@ class checkpoint():
 
 
 def get_logger(file_path):
+
     logger = logging.getLogger('gal')
     log_format = '%(asctime)s | %(message)s'
     formatter = logging.Formatter(log_format, datefmt='%m/%d %I:%M:%S %p')

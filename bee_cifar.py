@@ -15,10 +15,9 @@ import heapq
 from data import cifar10, cifar100, imagenet
 from importlib import import_module
 
-
+checkpoint = utils.checkpoint(args)
 device = torch.device(f"cuda:{args.gpus[0]}") if torch.cuda.is_available() else 'cpu'
 logger = utils.get_logger(os.path.join(args.job_dir + 'logger.log'))
-checkpoint = utils.checkpoint(args)
 loss_func = nn.CrossEntropyLoss()
 
 conv_num_cfg = {
