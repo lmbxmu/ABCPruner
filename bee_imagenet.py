@@ -18,7 +18,7 @@ conv_num_cfg = {
     'vgg16' : 13,
 	'resnet18' : 8,
 	'resnet34' : 16,
-	'resnet56' : 16,
+	'resnet50' : 16,
 	'resnet101' : 33,
 	'resnet152' : 50 
 }

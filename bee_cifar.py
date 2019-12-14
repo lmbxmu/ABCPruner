@@ -25,6 +25,7 @@ conv_num_cfg = {
     'resnet56' : 27,
     'resnet110' : 54,
     'googlenet' : 9,
+    'densenet':36,
     }
 food_dimension = conv_num_cfg[args.cfg]
 
@@ -47,7 +48,7 @@ elif args.arch == 'resnet_cifar':
 elif args.arch == 'googlenet':
     origin_model = import_module(f'model.{args.arch}').googlenet().to(device)
 elif args.arch == 'densenet':
-    pass
+    origin_model = import_module(f'model.{args.arch}').densenet().to(device)
 
 if args.honey_model is None or not os.path.exists(args.honey_model):
     raise ('Honey_model path should be exist!')
@@ -119,6 +120,72 @@ def load_vgg_honey_model(model, random_rule):
                 last_select_index = None
 
     model.load_state_dict(state_dict)
+
+def load_dense_honey_model(model, random_rule):
+
+    global oristate_dict
+    state_dict = model.state_dict()
+
+    conv_weight = []
+    bn_weight = []
+    bn_bias = []
+
+    for i in range(3):
+        for j in range(12):
+            conv1_weight_name = 'dense%d.%d.conv1.weight' % (i + 1, j)
+            conv_weight.append(conv1_weight_name)
+
+            bn_weight_name = 'dense%d.%d.bn1.weight' % (i + 1, j)
+            bn_weight.append(bn_weight_name)
+
+            bn_bias_name = 'dense%d.%d.bn1.bias' % (i + 1, j)
+            bn_bias.append(bn_bias_name)
+    
+    for i in range(len(conv_weight)):
+        conv_weight_name = conv_weight[i]
+        oriweight = oristate_dict[conv_weight_name]
+        curweight = state_dict[conv_weight_name]
+        orifilter_num = oriweight.size(1)
+        currentfilter_num = curweight.size(1)
+        select_num = currentfilter_num
+        #print(orifilter_num)
+        #print(currentfilter_num)
+
+        if orifilter_num != currentfilter_num and (random_rule == 'random_pretrain' or random_rule == 'l1_pretrain'):
+            if random_rule == 'random_pretrain':
+                select_index = random.sample(range(0, orifilter_num-1), select_num)
+                select_index.sort()
+            else:
+                l1_sum = list(torch.sum(torch.abs(oriweight), [1, 2, 3]))
+                select_index = list(map(l1_sum.index, heapq.nlargest(currentfilter_num, l1_sum)))
+                select_index.sort()
+
+            for i in range(curweight.size(0)):
+                for index_j, j in enumerate(select_index):
+                    state_dict[conv_weight_name][i][index_j] = \
+                            oristate_dict[conv_weight_name][i][j]
+
+
+    for name, module in model.named_modules():
+        if isinstance(module, nn.Conv2d):
+            conv_name = name + '.weight'
+            if conv_name not in conv_weight:
+                state_dict[conv_name] = oristate_dict[conv_name]
+
+        elif isinstance(module, nn.BatchNorm2d):
+            bn_weight_name = name + '.weight'
+            bn_bias_name = name + '.bias'
+            if bn_weight_name not in bn_weight and bn_bias_name not in bn_bias:
+                state_dict[bn_weight_name] = oristate_dict[bn_weight_name]
+                state_dict[bn_bias_name] = oristate_dict[bn_bias_name]
+
+        elif isinstance(module, nn.Linear):
+            state_dict[name + '.weight'] = oristate_dict[name + '.weight']
+            state_dict[name + '.bias'] = oristate_dict[name + '.bias']
+
+    model.load_state_dict(state_dict)
+
+
 
 def load_google_honey_model(model, random_rule):
     global oristate_dict
@@ -435,7 +502,8 @@ def calculationFitness(honey, train_loader, args):
         model = import_module(f'model.{args.arch}').googlenet(honey=honey).to(device)
         load_google_honey_model(model, args.random_rule)
     elif args.arch == 'densenet':
-        pass
+        model = import_module(f'model.{args.arch}').densenet(honey=honey).to(device)
+        load_dense_honey_model(model, args.random_rule)
 
     fit_accurary = utils.AverageMeter()
     train_accurary = utils.AverageMeter()
@@ -686,18 +754,14 @@ def main():
     print('==> Building model..')
     if args.arch == 'vgg_cifar':
         model = import_module(f'model.{args.arch}').BeeVGG(args.cfg, honeysource=best_honey.code).to(device)
-        model.load_state_dict(best_honey_state)
-        checkpoint.save_honey_model(model.state_dict())
     elif args.arch == 'resnet_cifar':
         model = import_module(f'model.{args.arch}').resnet(args.cfg,honey=best_honey.code).to(device)
-        model.load_state_dict(best_honey_state)
-        checkpoint.save_honey_model(model.state_dict())
     elif args.arch == 'googlenet':
         model = import_module(f'model.{args.arch}').googlenet(honey=best_honey.code).to(device)
-        model.load_state_dict(best_honey_state)
-        checkpoint.save_honey_model(model.state_dict())
     elif args.arch == 'densenet':
-        pass
+        model = import_module(f'model.{args.arch}').densenet(honey=best_honey.code).to(device)
+    model.load_state_dict(best_honey_state)
+    checkpoint.save_honey_model(model.state_dict())
 
     print(args.random_rule + ' Done!')
 

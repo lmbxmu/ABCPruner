@@ -231,10 +231,11 @@ netcfg = {
     'resnet56':27,
     'resnet110':54,
     'resnet34' : 16,
-    'resnet56' : 16,
+    'resnet50' : 16,
     'resnet101' : 33,
     'resnet152' : 50,
     'googlenet': 9,
+    'densenet': 36,
 }
 
 args.food_dimension = netcfg[args.cfg]
