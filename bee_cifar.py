@@ -124,9 +124,12 @@ def load_vgg_honey_model(model, random_rule):
 def load_dense_honey_model(model, random_rule):
 
     global oristate_dict
+    
+
     state_dict = model.state_dict()
 
     conv_weight = []
+    conv_trans_weight = []
     bn_weight = []
     bn_bias = []
 
@@ -135,14 +138,30 @@ def load_dense_honey_model(model, random_rule):
             conv1_weight_name = 'dense%d.%d.conv1.weight' % (i + 1, j)
             conv_weight.append(conv1_weight_name)
 
-            bn_weight_name = 'dense%d.%d.bn1.weight' % (i + 1, j)
-            bn_weight.append(bn_weight_name)
+            bn1_weight_name = 'dense%d.%d.bn1.weight' % (i + 1, j)
+            bn_weight.append(bn1_weight_name)
 
-            bn_bias_name = 'dense%d.%d.bn1.bias' % (i + 1, j)
-            bn_bias.append(bn_bias_name)
+            bn1_bias_name = 'dense%d.%d.bn1.bias' %(i+1,j)
+            bn_bias.append(bn1_bias_name)
+
+    for i in range(2):
+        conv1_weight_name = 'trans%d.conv1.weight' % (i + 1)
+        conv_weight.append(conv1_weight_name)
+        conv_trans_weight.append(conv1_weight_name)
+
+        bn_weight_name = 'trans%d.bn1.weight' % (i + 1)
+        bn_weight.append(bn_weight_name)
+
+        bn_bias_name = 'trans%d.bn1.bias' % (i + 1)
+        bn_bias.append(bn_bias_name)
     
-    for i in range(len(conv_weight)):
-        conv_weight_name = conv_weight[i]
+    bn_weight.append('bn.weight')
+    bn_bias.append('bn.bias')
+
+
+    
+    for k in range(len(conv_weight)):
+        conv_weight_name = conv_weight[k]
         oriweight = oristate_dict[conv_weight_name]
         curweight = state_dict[conv_weight_name]
         orifilter_num = oriweight.size(1)
@@ -166,6 +185,56 @@ def load_dense_honey_model(model, random_rule):
                             oristate_dict[conv_weight_name][i][j]
 
 
+    for k in range(len(bn_weight)):
+
+        bn_weight_name = bn_weight[k]
+        bn_bias_name = bn_bias[k]
+        bn_bias.append(bn_bias_name)
+        bn_weight.append(bn_weight_name)
+        oriweight = oristate_dict[bn_weight_name]
+        curweight = state_dict[bn_weight_name]
+
+        orifilter_num = oriweight.size(0)
+        currentfilter_num = curweight.size(0)
+        select_num = currentfilter_num
+
+        if orifilter_num != currentfilter_num and (random_rule == 'random_pretrain' or random_rule == 'l1_pretrain'):
+            if random_rule == 'random_pretrain':
+                select_index = random.sample(range(0, orifilter_num-1), select_num)
+                select_index.sort()
+            else:
+                l1_sum = list(torch.sum(torch.abs(oriweight), [1, 2, 3]))
+                select_index = list(map(l1_sum.index, heapq.nlargest(currentfilter_num, l1_sum)))
+                select_index.sort()
+
+            for index_j, j in enumerate(select_index):
+                state_dict[bn_weight_name][index_j] = \
+                        oristate_dict[bn_weight_name][j]
+                state_dict[bn_bias_name][index_j] = \
+                        oristate_dict[bn_bias_name][j]
+
+    oriweight = oristate_dict['fc.weight']
+    curweight = state_dict['fc.weight']
+    orifilter_num = oriweight.size(1)
+    currentfilter_num = curweight.size(1)
+    select_num = currentfilter_num
+
+    if orifilter_num != currentfilter_num and (random_rule == 'random_pretrain' or random_rule == 'l1_pretrain'):
+        if random_rule == 'random_pretrain':
+            select_index = random.sample(range(0, orifilter_num-1), select_num)
+            select_index.sort()
+        else:
+            l1_sum = list(torch.sum(torch.abs(oriweight), [1, 2, 3]))
+            select_index = list(map(l1_sum.index, heapq.nlargest(currentfilter_num, l1_sum)))
+            select_index.sort()
+
+        for i in range(curweight.size(0)): 
+            for index_j, j in enumerate(select_index):
+                state_dict['fc.weight'][i][index_j] = \
+                        oristate_dict['fc.weight'][i][j]
+
+
+
     for name, module in model.named_modules():
         if isinstance(module, nn.Conv2d):
             conv_name = name + '.weight'
@@ -179,11 +248,8 @@ def load_dense_honey_model(model, random_rule):
                 state_dict[bn_weight_name] = oristate_dict[bn_weight_name]
                 state_dict[bn_bias_name] = oristate_dict[bn_bias_name]
 
-        elif isinstance(module, nn.Linear):
-            state_dict[name + '.weight'] = oristate_dict[name + '.weight']
-            state_dict[name + '.bias'] = oristate_dict[name + '.bias']
-
     model.load_state_dict(state_dict)
+
 
 
 
