@@ -581,7 +581,7 @@ def main():
             #checkpoint.save_honey_model(state)
         else:
             best_honey.code = args.best_honey
-            best_honey_state = torch.load(args.best_honey_s)
+            #best_honey_state = torch.load(args.best_honey_s)
 
         # Modelmodel = import_module(f'model.{args.arch}').BeeVGG(honeysource=honey, num_classes=1000).to(device)
         print('==> Building model..')

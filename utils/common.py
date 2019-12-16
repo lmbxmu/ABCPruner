@@ -61,11 +61,12 @@ class checkpoint():
         _make_dir(self.run_dir)
 
         config_dir = self.job_dir / 'config.txt'
-        with open(config_dir, 'w') as f:
-            f.write(now + '\n\n')
-            for arg in vars(args):
-                f.write('{}: {}\n'.format(arg, getattr(args, arg)))
-            f.write('\n')
+        if not os.path.exists(config_dir):
+            with open(config_dir, 'w') as f:
+                f.write(now + '\n\n')
+                for arg in vars(args):
+                    f.write('{}: {}\n'.format(arg, getattr(args, arg)))
+                f.write('\n')
 
     def save_model(self, state, epoch, is_best):
         save_path = f'{self.ckpt_dir}/model_{epoch}.pt'
