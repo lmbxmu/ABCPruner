@@ -97,14 +97,14 @@ parser.add_argument(
 parser.add_argument(
     '--train_batch_size',
     type=int,
-    default=32,
+    default=256,
     help='Batch size for training. default:128'
 )
 
 parser.add_argument(
     '--eval_batch_size',
     type=int,
-    default=32,
+    default=256,
     help='Batch size for validation. default:100'
 )
 
@@ -220,7 +220,13 @@ parser.add_argument(
     nargs='+',
     default=None,
     help='If this hyper-parameter exists, skip bee-pruning and fine-tune from this prune method'
+)
 
+parser.add_argument(
+    '--best_honey_state',
+    type=str,
+    default=None,
+    help='Path to the best_honey'
 )
 
 args = parser.parse_args()

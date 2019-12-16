@@ -818,6 +818,7 @@ def main():
             #checkpoint.save_honey_model(state)
         else:
             best_honey.code = args.best_honey
+            best_honey_state = torch.load(args.best_honey_state)
 
         # Model
         print('==> Building model..')
