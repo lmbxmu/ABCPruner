@@ -223,7 +223,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '--best_honey_state',
+    '--best_honey_s',
     type=str,
     default=None,
     help='Path to the best_honey'

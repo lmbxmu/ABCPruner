@@ -62,7 +62,7 @@ python bee_imagenet.py
 python bee_imagenet.py 
 --data_path /home/sda4/data/ImageNet2012 
 --best_honey 1 2 3 4 5 6 7 8 9 1 2 3 4 ...
---best_honey_state ./experiment/resnet50/checkpoint/bestmodel_after_bee.pt
+--best_honey_s ./experiment/resnet50/checkpoint/bestmodel_after_bee.pt
 --resume ./experiment/resnet50/checkpoint/model_1.pt
 --honey_model ./experience/resnet/baseline/checkpoint/resnet18.pth 
 --job_dir ./experiment/resnet_imagenet 
