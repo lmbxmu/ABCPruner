@@ -21,25 +21,12 @@ Additionally, we provide several pre-trained models used in our experiments.
 
 |[ResNet18](https://download.pytorch.org/models/resnet18-5c106cde.pth) | [ResNet34](https://download.pytorch.org/models/resnet34-333f7ec4.pth) | [ResNet50](https://download.pytorch.org/models/resnet50-19c8e357.pth) |
 
-### Train from scratch
-
-```shell
-python main.py 
---arch vgg 
---cfg vgg16 
---data_set cifar10 
---data_path /home/lmb/cvpr_vgg2/data
---gpus 0 
---job_dir ./experiment/vgg16
-```
-
-### Train from resume
+### BeePruning for Pre-trained model
 
 ```shell
 python bee_imagenet.py 
---data_path /home/sda4/data/ImageNet2012 
---resume ./experiment/resnet50/checkpoint/model_1.pt
---honey_model ./experience/resnet/baseline/checkpoint/resnet18.pth 
+--data_path ../data/ImageNet2012 
+--honey_model ./pretrain/resnet18.pth 
 --job_dir ./experiment/resnet_imagenet 
 --arch resnet
 --cfg resnet18
@@ -56,202 +43,6 @@ python bee_imagenet.py
 --random_rule random_pretrain
 ```
 
-### Train from resume-past
-
-```shell
-python bee_imagenet.py 
---data_path /home/sda4/data/ImageNet2012 
---resume ./experiment/resnet50/checkpoint/model_1.pt
---honey_model ./experience/resnet/baseline/checkpoint/resnet18.pth 
---honey_honey_past  1 2 3 4 5 6 7 8 9 1 2 3 4 ... 
---job_dir ./experiment/resnet_imagenet 
---arch resnet
---cfg resnet18
---lr 0.01 
---lr_decay_step 75 112 
---num_epochs 150 
---gpus 0 
---calfitness_epoch 2 
---max_cycle 50 
---max_preserve 9 
---food_number 10 
---food_dimension 13 
---food_limit 5 
---random_rule random_pretrain
-```
-
-### Train from best honey
-
-```shell
-python bee_imagenet.py 
---data_path /home/sda4/data/ImageNet2012 
---best_honey 1 2 3 4 5 6 7 8 9 1 2 3 4 ...
---best_honey_s ./experiment/resnet50/checkpoint/bestmodel_after_bee.pt
---resume ./experiment/resnet50/checkpoint/model_1.pt
---honey_model ./experience/resnet/baseline/checkpoint/resnet18.pth 
---job_dir ./experiment/resnet_imagenet 
---arch resnet
---cfg resnet18
---lr 0.01 
---lr_decay_step 75 112 
---num_epochs 150 
---gpus 0 
---calfitness_epoch 2 
---max_cycle 50 
---max_preserve 9 
---food_number 10 
---food_dimension 13 
---food_limit 5 
---random_rule random_pretrain
-```
-
-### BeePruning for Pre-trained model ----Cifar resnet
-
-```shell
-
-python bee_cifar.py
---data_set cifar10 
---data_path /home/lmb/cvpr_vgg2/data 
---honey_model ./experience/resnet/baseline/checkpoint/resnet_56.pt 
---job_dir ./experiment/resnet56 
---arch resnet_cifar 
---cfg resnet56 
---lr 0.01 
---lr_decay_step 75 112 
---num_epochs 150 
---gpus 0 
---calfitness_epoch 2 
---max_cycle 50 
---max_preserve 9 
---food_number 10 
---food_dimension 13 
---food_limit 5 
---random_rule random_pretrain
-
-```
-
-### BeePruning for Pre-trained model ----Resnet Imagenet
-
-```shell
-python bee_imagenet.py 
---data_path /home/sda4/data/ImageNet2012 
---honey_model ./experience/resnet/baseline/checkpoint/resnet18.pth 
---job_dir ./experiment/resnet_imagenet 
---arch resnet
---cfg resnet18
---lr 0.01 
---lr_decay_step 75 112 
---num_epochs 150 
---gpus 0 
---calfitness_epoch 2 
---max_cycle 50 
---max_preserve 9 
---food_number 10 
---food_dimension 13 
---food_limit 5 
---random_rule random_pretrain
-
-
-```
-
-
-
-### BeePruning for Pre-trained model ----Cifar VGG
-
-```shell
-python bee_cifar.py 
---data_set cifar10 
---data_path /home/lmb/cvpr_vgg2/data 
---honey_model ./experience/vgg16/baseline/checkpoint/vgg16_cifar10.pt  
---job_dir ./experiment/vgg16 
---arch vgg_cifar 
---cfg vgg16 
---lr 0.01 
---lr_decay_step 75 112 
---num_epochs 150 
---gpus 0 
---calfitness_epoch 2 
---max_cycle 50 
---max_preserve 9 
---food_number 10 
---food_dimension 13 
---food_limit 5 
---random_rule random_pretrain
-
-
-
-```
-### BeePruning for Pre-trained model ----VGG Imagenet
-
-```shell
-python bee_imagenet.py 
---data_path /home/sda4/data/ImageNet2012 
---honey_model ./experience/vgg16/baseline/checkpoint/vgg16_imagenet.pth 
---job_dir ./experiment/vgg16_imagenet 
---arch vgg 
---cfg vgg16 
---lr 0.01 
---lr_decay_step 75 112 
---num_epochs 150 
---gpus 0 
---calfitness_epoch 2 
---max_cycle 50 
---max_preserve 9 
---food_number 10 
---food_dimension 13 
---food_limit 5 
---random_rule random_pretrain
-
-
-```
-### BeePruning for Pre-trained model ----Cifar googlenet
-
-```shell
-
-python bee_cifar.py
---data_set cifar10 
---data_path /home/lmb/cvpr_vgg2/data 
---honey_model ./experience/googlenet/baseline/checkpoint/google.pt 
---job_dir ./experiment/googlenet
---arch googlenet
---cfg googlenet
---lr 0.01 
---lr_decay_step 75 112 
---num_epochs 150 
---gpus 0 
---calfitness_epoch 2 
---max_cycle 50 
---max_preserve 9 
---food_number 10 
---food_dimension 13 
---food_limit 5 
---random_rule random_pretrain
-
-```
-### BeePruning for Pre-trained model ----Cifar densenet
-
-```shell
-
-python bee_cifar.py
---data_set cifar10 
---data_path /home/lmb/cvpr_vgg2/data 
---honey_model ./experience/googlenet/baseline/checkpoint/densenet_40.pt 
---job_dir ./experiment/densenet
---arch densenet
---cfg densenet
---lr 0.01 
---lr_decay_step 75 112 
---num_epochs 150 
---gpus 0 
---calfitness_epoch 2 
---max_cycle 50 
---max_preserve 9 
---food_number 10 
---food_dimension 13 
---food_limit 5 
---random_rule random_pretrain
-
-```
 ## Other Arguments
 
 ```shell
@@ -282,28 +73,21 @@ optional arguments:
                         the iterval of learn rate. default:50, 100
   --weight_decay WEIGHT_DECAY
                         The weight decay of loss. default:5e-4
-  --start_conv START_CONV
-                        The index of Conv to start sketch, index starts from
-                        0. default:1
-  --sketch_rate SKETCH_RATE
-                        The rate of each sketch conv. default:None
-  --sketch_model SKETCH_MODEL
-                        Path to the model wait for sketch. default:None
-  --sketch_bn SKETCH_BN
-                        Whether the BN weights are sketched or not?
-                        default:False
-  --weight_norm_method WEIGHT_NORM_METHOD
-                        Select the weight norm method. default:None
-                        Optional:max,sum,l2,l1,l2_2,2max
-  --filter_norm FILTER_NORM
-                        Filter level normalization or not? default:False
-  --sketch_lastconv SKETCH_LASTCONV
-                        Is the last layer of convolution sketched?
-                        default:True
   --random_rule RANDOM_RULE
                         Weight initialization criterion after random clipping.
                         default:default
                         optional:default,random_pretrain,l1_pretrain
   --test_only           Test only?
+  --honey_model         Path to the model wait for Beepruning. default:None
+  --calfitness_epoch    Calculate fitness of honey source: training epochs. default:2
+  --max_cycle           Search for best pruning plan times. default:10
+  --food_number         number of food to search. default:10
+  --food_dimension      num of conv layers. default: vgg16->13 conv layer to be pruned
+  --food_limit          Beyond this limit, the bee has not been renewed to become a scout bee
+  --honeychange_num     Number of codes that the nectar source changes each time
+  --best_honey          If this hyper-parameter exists, skip bee-pruning and fine-tune from this prune method
+  --best_honey_s        Path to the best_honey
+  --best_honey_past     If you want to load a resume without honey code, input your honey hode into this hyper-parameter
+  
 
 ```

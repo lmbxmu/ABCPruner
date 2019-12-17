@@ -160,15 +160,15 @@ parser.add_argument(
 parser.add_argument(
     '--calfitness_epoch',
     type=int,
-    default=10,
-    help='Calculate fitness of honey source: training epochs. default:10'
+    default=2,
+    help='Calculate fitness of honey source: training epochs. default:2'
 )
 
 parser.add_argument(
     '--max_cycle',
     type=int,
-    default=1000,
-    help='Search for best pruning plan times. default:1000'
+    default=10,
+    help='Search for best pruning plan times. default:10'
 )
 
 parser.add_argument(
@@ -189,7 +189,7 @@ parser.add_argument(
 parser.add_argument(
     '--food_number',
     type=int,
-    default=50,
+    default=10,
     help='Food number'
 )
 
