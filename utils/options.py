@@ -229,6 +229,13 @@ parser.add_argument(
     help='Path to the best_honey'
 )
 
+parser.add_argument(
+    '--best_honey_past',
+    type=int,
+    nargs='+',
+    default=None,
+)
+
 args = parser.parse_args()
 
 netcfg = {

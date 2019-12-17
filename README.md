@@ -56,6 +56,30 @@ python bee_imagenet.py
 --random_rule random_pretrain
 ```
 
+### Train from resume-past
+
+```shell
+python bee_imagenet.py 
+--data_path /home/sda4/data/ImageNet2012 
+--resume ./experiment/resnet50/checkpoint/model_1.pt
+--honey_model ./experience/resnet/baseline/checkpoint/resnet18.pth 
+--honey_honey_past  1 2 3 4 5 6 7 8 9 1 2 3 4 ... 
+--job_dir ./experiment/resnet_imagenet 
+--arch resnet
+--cfg resnet18
+--lr 0.01 
+--lr_decay_step 75 112 
+--num_epochs 150 
+--gpus 0 
+--calfitness_epoch 2 
+--max_cycle 50 
+--max_preserve 9 
+--food_number 10 
+--food_dimension 13 
+--food_limit 5 
+--random_rule random_pretrain
+```
+
 ### Train from best honey
 
 ```shell

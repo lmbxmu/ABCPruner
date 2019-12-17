@@ -64,6 +64,11 @@ class DenseNet(nn.Module):
         else:
             self.honey = honey
 
+        for i in range(4):
+            self.honey[8+i] = 10
+            self.honey[20+i]=10
+            self.honey[32+i]=10
+
         if filters == None:
             filters = []
             start = growthRate*2

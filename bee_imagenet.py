@@ -615,7 +615,10 @@ def main():
          # Model
         resumeckpt = torch.load(args.resume)
         state_dict = resumeckpt['state_dict']
-        code = resumeckpt['honey_code']
+        if args.best_honey_past == None:
+            code = resumeckpt['honey_code']
+        else:
+            code = args.best_honey_past
         print('==> Building model..')
         if args.arch == 'vgg':
             model = import_module(f'model.{args.arch}').BeeVGG(honeysource=code, num_classes = 1000).to(device)
