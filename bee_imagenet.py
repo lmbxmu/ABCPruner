@@ -587,17 +587,18 @@ def main():
         print('==> Building model..')
         if args.arch == 'vgg':
             model = import_module(f'model.{args.arch}').BeeVGG(honeysource=best_honey.code, num_classes = 1000).to(device)
-            model.load_state_dict(best_honey_state)
-            checkpoint.save_honey_model(model.state_dict())
         elif args.arch == 'resnet':
             model = import_module(f'model.{args.arch}').resnet(args.cfg,honey=best_honey.code).to(device)
-            model.load_state_dict(best_honey_state)
-            checkpoint.save_honey_model(model.state_dict())
         elif args.arch == 'googlenet':
             pass
         elif args.arch == 'densenet':
             pass
         code = best_honey.code
+
+        if args.best_honey_s:
+            model.load_state_dict(torch.load(args.best_honey_s))
+        else:
+            model.load_state_dict(best_honey_state)
 
         checkpoint.save_honey_model(model.state_dict())
 

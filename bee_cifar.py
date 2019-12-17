@@ -818,7 +818,6 @@ def main():
             #checkpoint.save_honey_model(state)
         else:
             best_honey.code = args.best_honey
-            #best_honey_state = torch.load(args.best_honey_s)
 
         # Model
         print('==> Building model..')
@@ -830,7 +829,11 @@ def main():
             model = import_module(f'model.{args.arch}').googlenet(honey=best_honey.code).to(device)
         elif args.arch == 'densenet':
             model = import_module(f'model.{args.arch}').densenet(honey=best_honey.code).to(device)
-        model.load_state_dict(best_honey_state)
+
+        if args.best_honey_s:
+            model.load_state_dict(torch.load(args.best_honey_s))
+        else:
+            model.load_state_dict(best_honey_state)
 
         checkpoint.save_honey_model(model.state_dict())
 
