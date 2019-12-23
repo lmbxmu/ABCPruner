@@ -38,7 +38,6 @@ python bee_imagenet.py
 --max_cycle 50 
 --max_preserve 9 
 --food_number 10 
---food_dimension 13 
 --food_limit 5 
 --random_rule random_pretrain
 ```
@@ -82,7 +81,6 @@ optional arguments:
   --calfitness_epoch    Calculate fitness of honey source: training epochs. default:2
   --max_cycle           Search for best pruning plan times. default:10
   --food_number         number of food to search. default:10
-  --food_dimension      num of conv layers. default: vgg16->13 conv layer to be pruned
   --food_limit          Beyond this limit, the bee has not been renewed to become a scout bee
   --honeychange_num     Number of codes that the nectar source changes each time
   --best_honey          If this hyper-parameter exists, skip bee-pruning and fine-tune from this prune method
