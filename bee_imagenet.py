@@ -233,7 +233,7 @@ def train(model, optimizer, trainLoader, args, epoch, topk=(1,)):
     for batch, batch_data in enumerate(trainLoader):
         #i+=1
         #if i>5:
-        #    break
+            #break
 
         inputs = batch_data[0]['data'].to(device)
         targets = batch_data[0]['label'].squeeze().long().to(device)
@@ -296,7 +296,7 @@ def test(model, testLoader, topk=(1,)):
                 .format(float(losses.avg), float(accuracy.avg), float(top5_accuracy.avg), (current_time - start_time))
         )
 
-    return top5_accuracy.avg
+    return top5_accuracy.avg, accuracy.avg
 
 #Calculate fitness of a honey source
 def calculationFitness(honey, args):
@@ -326,17 +326,17 @@ def calculationFitness(honey, args):
     model.train()
 
     trainLoader = get_data_set('train')
-    i = 0
+    #i = 0
     for epoch in range(args.calfitness_epoch):
         #print(epoch)
         for batch, batch_data in enumerate(trainLoader):
-            i += 1
+            #i += 1
             #print(i)
             #if i > 5:
                 #break
-            if i < 10:
-                continue
-            i = 0
+            #if i < 10:
+            #   continue
+            #i = 0
             inputs = batch_data[0]['data'].to(device)
             targets = batch_data[0]['label'].squeeze().long().to(device)
             optimizer.zero_grad()
@@ -350,21 +350,21 @@ def calculationFitness(honey, args):
     fit_accurary = utils.AverageMeter()
     model.eval()
     testLoader = get_data_set('test')
-    i = 0
+    #i = 0
     with torch.no_grad():
         for batch_idx, batch_data in enumerate(testLoader):
             #print(i)
-            i += 1
+            #i += 1
             #if i > 5:
                 #break
-            if i < 10:
-                continue
-            i = 0
+            #if i < 10:
+                #continue
+            #i = 0
             inputs = batch_data[0]['data'].to(device)
             targets = batch_data[0]['label'].squeeze().long().to(device)
             outputs = model(inputs)
             predicted = utils.accuracy(outputs, targets,topk=(1,5))
-            fit_accurary.update(predicted[0], inputs.size(0))
+            fit_accurary.update(predicted[1], inputs.size(0))
 
 
     #current_time = time.time()
@@ -531,6 +531,7 @@ def memorizeBestSource():
 def main():
     start_epoch = 0
     best_acc = 0.0
+    best_acc_top1 = 0.0
     code = []
 
     if args.resume == None:
@@ -645,9 +646,10 @@ def main():
     for epoch in range(start_epoch, args.num_epochs):
         train(model, optimizer, trainLoader, args, epoch, topk=(1, 5))
         scheduler.step()
-        test_acc = test(model, testLoader,topk=(1, 5))
+        test_acc, test_acc_top1 = test(model, testLoader,topk=(1, 5))
 
         is_best = best_acc < test_acc
+        best_acc_top1 = max(best_acc_top1, test_acc_top1)
         best_acc = max(best_acc, test_acc)
 
         model_state_dict = model.module.state_dict() if len(args.gpus) > 1 else model.state_dict()
@@ -662,7 +664,7 @@ def main():
         }
         checkpoint.save_model(state, epoch + 1, is_best)
 
-    logger.info('Best accurary: {:.3f}'.format(float(best_acc)))
+    logger.info('Best accurary(top5): {:.3f} (top1): {.3f}'.format(float(best_acc),float(best_acc_top1)))
 
 if __name__ == '__main__':
     main()

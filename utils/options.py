@@ -97,14 +97,14 @@ parser.add_argument(
 parser.add_argument(
     '--train_batch_size',
     type=int,
-    default=256,
+    default=32,
     help='Batch size for training. default:128'
 )
 
 parser.add_argument(
     '--eval_batch_size',
     type=int,
-    default=256,
+    default=32,
     help='Batch size for validation. default:100'
 )
 
