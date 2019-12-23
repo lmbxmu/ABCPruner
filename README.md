@@ -58,8 +58,8 @@ optional arguments:
   --reset               Reset the directory?
   --resume RESUME       Load the model from the specified checkpoint.
   --refine REFINE       Path to the model to be fine tuned.
-  --arch ARCH           Architecture of model. default:vgg
-  --cfg CFG             Detail architecuture of model. default:vgg16
+  --arch ARCH           Architecture of model. default:vgg,resnet,googlenet,densenet
+  --cfg CFG             Detail architecuture of model. default:vgg16, resnet18/34/50(imagenet),resnet56/110(cifar),googlenet,densenet
   --num_epochs NUM_EPOCHS
                         The num of epochs to train. default:150
   --train_batch_size TRAIN_BATCH_SIZE
@@ -81,11 +81,11 @@ optional arguments:
   --calfitness_epoch    Calculate fitness of honey source: training epochs. default:2
   --max_cycle           Search for best pruning plan times. default:10
   --food_number         number of food to search. default:10
-  --food_limit          Beyond this limit, the bee has not been renewed to become a scout bee
-  --honeychange_num     Number of codes that the nectar source changes each time
-  --best_honey          If this hyper-parameter exists, skip bee-pruning and fine-tune from this prune method
-  --best_honey_s        Path to the best_honey
-  --best_honey_past     If you want to load a resume without honey code, input your honey hode into this hyper-parameter
+  --food_limit          Beyond this limit, the bee has not been renewed to become a scout bee default:5
+  --honeychange_num     Number of codes that the nectar source changes each time default:2
+  --best_honey          If this hyper-parameter exists, skip bee-pruning and fine-tune from this prune method default:None
+  --best_honey_s        Path to the best_honey default:None
+  --best_honey_past     If you want to load a resume without honey code, input your honey hode into this hyper-parameter default:None
   
 
 ```
