@@ -664,7 +664,7 @@ def main():
         }
         checkpoint.save_model(state, epoch + 1, is_best)
 
-    logger.info('Best accurary(top5): {:.3f} (top1): {.3f}'.format(float(best_acc),float(best_acc_top1)))
+    logger.info('Best accurary(top5): {:.3f} (top1): {:.3f}'.format(float(best_acc),float(best_acc_top1)))
 
 if __name__ == '__main__':
     main()
