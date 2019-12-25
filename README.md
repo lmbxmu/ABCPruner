@@ -42,6 +42,17 @@ python bee_imagenet.py
 --random_rule random_pretrain
 ```
 
+## Get FLOPS
+
+```shell
+python get_flops.py 
+--data_set cifar10 
+--input_image_size 32 
+--arch resnet_cifar 
+--cfg resnet56
+--honey 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5
+```
+
 ## Other Arguments
 
 ```shell
@@ -86,6 +97,8 @@ optional arguments:
   --best_honey          If this hyper-parameter exists, skip bee-pruning and fine-tune from this prune method default:None
   --best_honey_s        Path to the best_honey default:None
   --best_honey_past     If you want to load a resume without honey code, input your honey hode into this hyper-parameter default:None
+
+  --honey               get flops and params of a model with specified honey(prune plan )
   
 
 ```

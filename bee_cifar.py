@@ -42,7 +42,7 @@ else:
 # Model
 print('==> Loading Model..')
 if args.arch == 'vgg_cifar':
-     origin_model = import_module(f'model.{args.arch}').VGG(args.cfg).to(device)
+    origin_model = import_module(f'model.{args.arch}').VGG(args.cfg).to(device)
 elif args.arch == 'resnet_cifar':
     origin_model = import_module(f'model.{args.arch}').resnet(args.cfg).to(device)
 elif args.arch == 'googlenet':
