@@ -43,34 +43,34 @@ trainLoader = get_data_set('train')
 testLoader = get_data_set('test')
 
 
+if args.from_scratch == False:
 
+    # Model
+    print('==> Loading Model..')
+    if args.arch == 'vgg':
+        origin_model = import_module(f'model.{args.arch}').VGG(num_classes=1000).to(device)
+    elif args.arch == 'resnet':
+        origin_model = import_module(f'model.{args.arch}').resnet(args.cfg).to(device)
+    elif args.arch == 'googlenet':
+        pass
+    elif args.arch == 'densenet':
+        pass
 
-# Model
-print('==> Loading Model..')
-if args.arch == 'vgg':
-    origin_model = import_module(f'model.{args.arch}').VGG(num_classes=1000).to(device)
-elif args.arch == 'resnet':
-    origin_model = import_module(f'model.{args.arch}').resnet(args.cfg).to(device)
-elif args.arch == 'googlenet':
-    pass
-elif args.arch == 'densenet':
-    pass
+    if args.honey_model is None or not os.path.exists(args.honey_model):
+        raise ('Honey_model path should be exist!')
 
-if args.honey_model is None or not os.path.exists(args.honey_model):
-    raise ('Honey_model path should be exist!')
+    ckpt = torch.load(args.honey_model, map_location=device)
+    '''
+    print("model's state_dict:")
+    for param_tensor in ckpt:
+        print(param_tensor,'\t',ckpt[param_tensor].size())
 
-ckpt = torch.load(args.honey_model, map_location=device)
-'''
-print("model's state_dict:")
-for param_tensor in ckpt:
-    print(param_tensor,'\t',ckpt[param_tensor].size())
-
-print("origin_model's state_dict:")
-for param_tensor in origin_model.state_dict():
-    print(param_tensor,'\t',origin_model.state_dict()[param_tensor].size())
-'''
-origin_model.load_state_dict(ckpt)
-oristate_dict = origin_model.state_dict()
+    print("origin_model's state_dict:")
+    for param_tensor in origin_model.state_dict():
+        print(param_tensor,'\t',origin_model.state_dict()[param_tensor].size())
+    '''
+    origin_model.load_state_dict(ckpt)
+    oristate_dict = origin_model.state_dict()
 
 #Define BeeGroup 
 class BeeGroup():
@@ -534,112 +534,141 @@ def main():
     best_acc_top1 = 0.0
     code = []
 
-    if args.resume == None:
+    if args.from_scratch:
 
-        test(origin_model, testLoader, topk=(1, 5))
-
-        if args.best_honey == None:
-
-            start_time = time.time()
-            
-            bee_start_time = time.time()
-            
-            print('==> Start BeePruning..')
-
-            initilize()
-
-            #memorizeBestSource()
-
-            for cycle in range(args.max_cycle):
-
-                current_time = time.time()
-                logger.info(
-                    'Search Cycle [{}]\t Best Honey Source {}\tBest Honey Source fitness {:.2f}%\tTime {:.2f}s\n'
-                    .format(cycle, best_honey.code, float(best_honey.fitness), (current_time - start_time))
-                )
-                start_time = time.time()
-
-                sendEmployedBees() 
-                  
-                calculateProbabilities()
-                  
-                sendOnlookerBees()  
-                  
-                #memorizeBestSource() 
-                  
-                sendScoutBees() 
-                  
-                #memorizeBestSource() 
-
-            print('==> BeePruning Complete!')
-            
-
-            bee_end_time = time.time()
-            logger.info(
-                'Best Honey Source {}\tBest Honey Source fitness {:.2f}%\tTime Used{:.2f}s\n'
-                .format(best_honey.code, float(best_honey.fitness), (bee_end_time - bee_start_time))
-            )
-            #checkpoint.save_honey_model(state)
-        else:
-            best_honey.code = args.best_honey
-            #best_honey_state = torch.load(args.best_honey_s)
-
-        # Modelmodel = import_module(f'model.{args.arch}').BeeVGG(honeysource=honey, num_classes=1000).to(device)
-        print('==> Building model..')
+  
+        print('==> Building Model..')
         if args.arch == 'vgg':
-            model = import_module(f'model.{args.arch}').BeeVGG(honeysource=best_honey.code, num_classes = 1000).to(device)
+            model = import_module(f'model.{args.arch}').VGG(num_classes=1000).to(device)
         elif args.arch == 'resnet':
-            model = import_module(f'model.{args.arch}').resnet(args.cfg,honey=best_honey.code).to(device)
-        elif args.arch == 'googlenet':
-            pass
-        elif args.arch == 'densenet':
-            pass
-        code = best_honey.code
-
-        if args.best_honey_s:
-            model.load_state_dict(torch.load(args.best_honey_s))
-        else:
-            model.load_state_dict(best_honey_state)
-
-        checkpoint.save_honey_model(model.state_dict())
-
-        print(args.random_rule + ' Done!')
+            model = import_module(f'model.{args.arch}').resnet(args.cfg).to(device)
 
         if len(args.gpus) != 1:
             model = nn.DataParallel(model, device_ids=args.gpus)
-
+ 
         optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
         scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_decay_step, gamma=0.1)
-        code = best_honey.code
+
+        if args.resume:
+            print('=> Resuming from ckpt {}'.format(args.resume))
+            ckpt = torch.load(args.resume, map_location=device)
+            best_acc = ckpt['best_acc']
+            start_epoch = ckpt['epoch']
+
+            model.load_state_dict(ckpt['state_dict'])
+            optimizer.load_state_dict(ckpt['optimizer'])
+            scheduler.load_state_dict(ckpt['scheduler'])
+            print('=> Continue from epoch {}...'.format(start_epoch))
+
 
     else:
-         # Model
-        resumeckpt = torch.load(args.resume)
-        state_dict = resumeckpt['state_dict']
-        if args.best_honey_past == None:
-            code = resumeckpt['honey_code']
+
+        if args.resume == None:
+
+            test(origin_model, testLoader, topk=(1, 5))
+
+            if args.best_honey == None:
+
+                start_time = time.time()
+                
+                bee_start_time = time.time()
+                
+                print('==> Start BeePruning..')
+
+                initilize()
+
+                #memorizeBestSource()
+
+                for cycle in range(args.max_cycle):
+
+                    current_time = time.time()
+                    logger.info(
+                        'Search Cycle [{}]\t Best Honey Source {}\tBest Honey Source fitness {:.2f}%\tTime {:.2f}s\n'
+                        .format(cycle, best_honey.code, float(best_honey.fitness), (current_time - start_time))
+                    )
+                    start_time = time.time()
+
+                    sendEmployedBees() 
+                      
+                    calculateProbabilities()
+                      
+                    sendOnlookerBees()  
+                      
+                    #memorizeBestSource() 
+                      
+                    sendScoutBees() 
+                      
+                    #memorizeBestSource() 
+
+                print('==> BeePruning Complete!')
+                
+
+                bee_end_time = time.time()
+                logger.info(
+                    'Best Honey Source {}\tBest Honey Source fitness {:.2f}%\tTime Used{:.2f}s\n'
+                    .format(best_honey.code, float(best_honey.fitness), (bee_end_time - bee_start_time))
+                )
+                #checkpoint.save_honey_model(state)
+            else:
+                best_honey.code = args.best_honey
+                #best_honey_state = torch.load(args.best_honey_s)
+
+            # Modelmodel = import_module(f'model.{args.arch}').BeeVGG(honeysource=honey, num_classes=1000).to(device)
+            print('==> Building model..')
+            if args.arch == 'vgg':
+                model = import_module(f'model.{args.arch}').BeeVGG(honeysource=best_honey.code, num_classes = 1000).to(device)
+            elif args.arch == 'resnet':
+                model = import_module(f'model.{args.arch}').resnet(args.cfg,honey=best_honey.code).to(device)
+            elif args.arch == 'googlenet':
+                pass
+            elif args.arch == 'densenet':
+                pass
+            code = best_honey.code
+
+            if args.best_honey_s:
+                model.load_state_dict(torch.load(args.best_honey_s))
+            else:
+                model.load_state_dict(best_honey_state)
+
+            checkpoint.save_honey_model(model.state_dict())
+
+            print(args.random_rule + ' Done!')
+
+            if len(args.gpus) != 1:
+                model = nn.DataParallel(model, device_ids=args.gpus)
+
+            optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
+            scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_decay_step, gamma=0.1)
+            code = best_honey.code
+
         else:
-            code = args.best_honey_past
-        print('==> Building model..')
-        if args.arch == 'vgg':
-            model = import_module(f'model.{args.arch}').BeeVGG(honeysource=code, num_classes = 1000).to(device)
-        elif args.arch == 'resnet':
-            model = import_module(f'model.{args.arch}').resnet(args.cfg,honey=code).to(device)
-        elif args.arch == 'googlenet':
-            pass
-        elif args.arch == 'densenet':
-            pass
+             # Model
+            resumeckpt = torch.load(args.resume)
+            state_dict = resumeckpt['state_dict']
+            if args.best_honey_past == None:
+                code = resumeckpt['honey_code']
+            else:
+                code = args.best_honey_past
+            print('==> Building model..')
+            if args.arch == 'vgg':
+                model = import_module(f'model.{args.arch}').BeeVGG(honeysource=code, num_classes = 1000).to(device)
+            elif args.arch == 'resnet':
+                model = import_module(f'model.{args.arch}').resnet(args.cfg,honey=code).to(device)
+            elif args.arch == 'googlenet':
+                pass
+            elif args.arch == 'densenet':
+                pass
 
-        optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-        scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_decay_step, gamma=0.1)
+            optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
+            scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_decay_step, gamma=0.1)
 
-        model.load_state_dict(state_dict)
-        optimizer.load_state_dict(resumeckpt['optimizer'])
-        scheduler.load_state_dict(resumeckpt['scheduler'])
-        start_epoch = resumeckpt['epoch']
+            model.load_state_dict(state_dict)
+            optimizer.load_state_dict(resumeckpt['optimizer'])
+            scheduler.load_state_dict(resumeckpt['scheduler'])
+            start_epoch = resumeckpt['epoch']
 
-        if len(args.gpus) != 1:
-            model = nn.DataParallel(model, device_ids=args.gpus)
+            if len(args.gpus) != 1:
+                model = nn.DataParallel(model, device_ids=args.gpus)
 
 
 

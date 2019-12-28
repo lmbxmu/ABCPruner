@@ -22,6 +22,12 @@ Train: num_epochs train_batch_size eval_batch_size momentum lr lr_decay_step wei
 parser = argparse.ArgumentParser(description='Prune via BeePruning')
 
 parser.add_argument(
+    '--from_scratch',
+    action='store_true',
+    help='Train from scratch?'
+)
+
+parser.add_argument(
 	'--gpus',
 	type=int,
 	nargs='+',

@@ -19,7 +19,7 @@ Additionally, we provide several pre-trained models used in our experiments.
 
 #### ImageNet
 
-|[ResNet18](https://download.pytorch.org/models/resnet18-5c106cde.pth) | [ResNet34](https://download.pytorch.org/models/resnet34-333f7ec4.pth) | [ResNet50](https://download.pytorch.org/models/resnet50-19c8e357.pth) |
+|[VGG16](https://download.pytorch.org/models/vgg16_bn-6c64b313.pth) |[ResNet18](https://download.pytorch.org/models/resnet18-5c106cde.pth) | [ResNet34](https://download.pytorch.org/models/resnet34-333f7ec4.pth) | [ResNet50](https://download.pytorch.org/models/resnet50-19c8e357.pth) |
 
 ### BeePruning for Pre-trained model
 
@@ -99,6 +99,7 @@ optional arguments:
   --best_honey_past     If you want to load a resume without honey code, input your honey hode into this hyper-parameter default:None
 
   --honey               get flops and params of a model with specified honey(prune plan )
+  --from_scratch        train from scratch default:False
   
 
 ```
