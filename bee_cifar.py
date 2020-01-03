@@ -53,6 +53,7 @@ elif args.arch == 'densenet':
 if args.honey_model is None or not os.path.exists(args.honey_model):
     raise ('Honey_model path should be exist!')
 
+
 ckpt = torch.load(args.honey_model, map_location=device)
 origin_model.load_state_dict(ckpt['state_dict'])
 oristate_dict = origin_model.state_dict()

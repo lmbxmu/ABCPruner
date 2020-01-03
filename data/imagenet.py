@@ -29,11 +29,11 @@ class Data:
                 normalize,
             ]))
 
-        self.trainLoader = DataLoader(
+        self.loader_train = DataLoader(
             trainset,
             batch_size=args.train_batch_size,
             shuffle=True,
-            num_workers=4,
+            num_workers=2,
             pin_memory=pin_memory)
 
         testset = datasets.ImageFolder(
@@ -46,9 +46,9 @@ class Data:
                 normalize,
             ]))
 
-        self.testLoader = DataLoader(
+        self.loader_test = DataLoader(
             testset,
             batch_size=args.eval_batch_size,
             shuffle=False,
-            num_workers=4,
+            num_workers=2,
             pin_memory=True)

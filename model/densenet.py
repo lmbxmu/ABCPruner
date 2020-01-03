@@ -63,11 +63,11 @@ class DenseNet(nn.Module):
             self.honey = [10] * 36
         else:
             self.honey = honey
-
-        for i in range(36):
-            if self.honey[i] < 5:
-                self.honey[i] = 5
-
+        '''
+        if ori == False:
+            for i in range(36):
+                self.honey[i] = 4
+        '''
         #for i in range(4):
             #self.honey[8+i] = 10
             #self.honey[20+i]=10
