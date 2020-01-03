@@ -672,7 +672,7 @@ def main():
         scheduler.step()
         test_acc, test_acc_top1 = test(model, testLoader,topk=(1, 5))
 
-        is_best = best_acc < test_accen
+        is_best = best_acc < test_acc
         best_acc_top1 = max(best_acc_top1, test_acc_top1)
         best_acc = max(best_acc, test_acc)
 
