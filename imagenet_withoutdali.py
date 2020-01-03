@@ -32,7 +32,7 @@ else:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 checkpoint = utils.checkpoint(args)
 logger = utils.get_logger(os.path.join(args.job_dir + 'logger.log'))
-loss_func = nn.CrossEntropyLoss()
+loss_func = nn.CrossEntropyLoss().cuda(args.gpus)
 
 # Data
 print('==> Preparing data..')
