@@ -225,7 +225,7 @@ def train(model, optimizer, trainLoader, args, epoch, topk=(1,)):
     losses = utils.AverageMeter()
     accuracy = utils.AverageMeter()
     top5_accuracy = utils.AverageMeter()
-    print_freq = len(trainLoader) // args.train_batch_size 
+    print_freq = len(trainLoader) // args.train_batch_size * 10
     start_time = time.time()
 
     for batch, (inputs, targets) in enumerate(trainLoader):
