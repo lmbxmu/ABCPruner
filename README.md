@@ -47,7 +47,6 @@ python bee_imagenet.py
 ```shell
 python get_flops.py 
 --data_set cifar10 
---input_image_size 32 
 --arch resnet_cifar 
 --cfg resnet56
 --honey 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5
