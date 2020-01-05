@@ -25,11 +25,7 @@ conv_num_cfg = {
 
 food_dimension = conv_num_cfg[args.cfg]
 
-if len(args.gpus)==1:
-    device = torch.device("cuda:"+args.gpus if torch.cuda.is_available() else "cpu")
-    #device = "cuda:" + args.gpu if torch.cuda.is_available() else "cpu"
-else:
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device(f"cuda:{args.gpus[0]}") if torch.cuda.is_available() else 'cpu'
 checkpoint = utils.checkpoint(args)
 logger = utils.get_logger(os.path.join(args.job_dir + 'logger.log'))
 loss_func = nn.CrossEntropyLoss().cuda(args.gpus)
