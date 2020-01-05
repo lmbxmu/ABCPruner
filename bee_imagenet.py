@@ -282,7 +282,7 @@ def test(model, testLoader, topk=(1,)):
                 #break
             inputs = batch_data[0]['data'].to(device)
             targets = batch_data[0]['label'].squeeze().long().to(device)
-            target = target.cuda(non_blocking=True)
+            targets = targets.cuda(non_blocking=True)
             outputs = model(inputs)
             loss = loss_func(outputs, targets)
 
