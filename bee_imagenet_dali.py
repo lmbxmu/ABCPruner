@@ -86,7 +86,6 @@ def adjust_learning_rate(optimizer, epoch, step, len_epoch):
     if epoch < 5:
         lr = lr * float(1 + step + epoch * len_epoch) / (5. * len_epoch)
 
-
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 
@@ -307,7 +306,7 @@ def test(model, testLoader, topk=(1,)):
                 #break
             inputs = batch_data[0]['data'].to(device)
             targets = batch_data[0]['label'].squeeze().long().to(device)
-            target = target.cuda(non_blocking=True)
+            targets = targets.cuda(non_blocking=True)
             outputs = model(inputs)
             loss = loss_func(outputs, targets)
 
