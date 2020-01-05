@@ -7,6 +7,7 @@ import utils.common as utils
 import os
 import copy
 import time
+import math
 import sys
 import numpy as np
 import heapq
@@ -85,8 +86,6 @@ def adjust_learning_rate(optimizer, epoch, step, len_epoch):
     if epoch < 5:
         lr = lr * float(1 + step + epoch * len_epoch) / (5. * len_epoch)
 
-    if(args.local_rank == 0 and step % args.print_freq == 0 and step > 1):
-        print("Epoch = {}, step = {}, lr = {}".format(epoch, step, lr))
 
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
@@ -258,7 +257,7 @@ def train(model, optimizer, trainLoader, args, epoch, topk=(1,)):
 
         targets = batch_data[0]['label'].squeeze().long().to(device)
 
-        train_loader_len = int(math.ceil(train_loader._size / args.batch_size))
+        train_loader_len = int(math.ceil(trainLoader._size / args.train_batch_size))
 
         adjust_learning_rate(optimizer, epoch, batch, train_loader_len)
 
