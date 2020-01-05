@@ -73,20 +73,22 @@ input = torch.randn(1, 3, input_image_size, input_image_size).cuda()
 orichannel = 0
 channel = 0
 
+
+oriflops, oriparams = profile(orimodel, inputs=(input, ))
+flops, params = profile(model, inputs=(input, ))
+
+
 for name, module in orimodel.named_modules():
 
         if isinstance(module, nn.Conv2d):
             orichannel += orimodel.state_dict()[name + '.weight'].size(0)
-            #print(orimodel.state_dict()[name + '.weight'].size(0))
+            print(orimodel.state_dict()[name + '.weight'].size(0))
 
 for name, module in model.named_modules():
 
         if isinstance(module, nn.Conv2d):
             channel += model.state_dict()[name + '.weight'].size(0)
-            #print(model.state_dict()[name + '.weight'].size(0))
-
-oriflops, oriparams = profile(orimodel, inputs=(input, ))
-flops, params = profile(model, inputs=(input, ))
+            print(model.state_dict()[name + '.weight'].size(0))
 
 print('--------------UnPrune Model--------------')
 print('Channels: %d'%(orichannel))
