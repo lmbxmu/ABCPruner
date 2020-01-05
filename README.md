@@ -42,6 +42,11 @@ python bee_imagenet.py
 --random_rule random_pretrain
 ```
 
+### Train_from scratch for DALI
+
+```shell
+python main.py -a resnet18 ../data/ImageNet2012/ILSVRC2012_img_train ../data/ImageNet2012/val
+```
 ## Get FLOPS
 
 ```shell
