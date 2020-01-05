@@ -20,7 +20,7 @@ Additionally, we provide several pre-trained models used in our experiments.
 #### ImageNet
 
 |[VGG16](https://download.pytorch.org/models/vgg16_bn-6c64b313.pth) |[ResNet18](https://download.pytorch.org/models/resnet18-5c106cde.pth) | [ResNet34](https://download.pytorch.org/models/resnet34-333f7ec4.pth) | [ResNet50](https://download.pytorch.org/models/resnet50-19c8e357.pth) |
-
+[ResNet101](https://download.pytorch.org/models/resnet101-5d3b4d8f.pth) | [ResNet152](https://download.pytorch.org/models/resnet152-b121ed2d.pth)|
 ### BeePruning for Pre-trained model
 
 ```shell
