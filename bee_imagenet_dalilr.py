@@ -362,7 +362,7 @@ def calculationFitness(honey, args):
             #i += 1
             #print(i)
             #if i > 5:
-             #   break
+            #    break
             #if i < 10:
             #   continue
             #i = 0
@@ -371,7 +371,12 @@ def calculationFitness(honey, args):
 
             train_loader_len = int(math.ceil(trainLoader._size / args.train_batch_size))
 
-            adjust_learning_rate(optimizer, epoch, batch, train_loader_len)
+            lr = args.lr * float(1 + batch + epoch * train_loader_len) / (5. * train_loader_len)
+
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = lr
+
+            #print('epoch{}\tlr{}'.format(epoch,lr))
             
             optimizer.zero_grad()
             output = model(inputs)
