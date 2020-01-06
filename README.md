@@ -42,10 +42,20 @@ python bee_imagenet.py
 --random_rule random_pretrain
 ```
 
+### BeePruning for Pre-trained model with dali learning method
+```shell
+python bee_imagenet_dali.py 
+```
+
+### BeePruning for Pre-trained model with dali learning method and dali initial lr
+```shell
+python bee_imagenet_dalilr.py 
+```
+
 ### Train_from scratch for DALI
 
 ```shell
-python main.py -a resnet18 ../data/ImageNet2012/ILSVRC2012_img_train ../data/ImageNet2012/val
+python DALI.py -a resnet18 ../data/ImageNet2012/ILSVRC2012_img_train ../data/ImageNet2012/val
 ```
 ## Get FLOPS
 

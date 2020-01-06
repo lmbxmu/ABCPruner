@@ -12,7 +12,7 @@ parser.add_argument(
     '--arch',
     type=str,
     default='vgg_cifar',
-    choices=('vgg_cifar','resnet_cifar','vgg','resnet','densenet','googlenet'),
+    choices=('vgg_cifar','resnet_cifar','vgg','resnet','densenet','googlenet','vgglayerwise'),
     help='The architecture to prune')
 parser.add_argument(
     '--data_set',
@@ -30,6 +30,12 @@ parser.add_argument(
     default=[0],
     help='Select gpu_id to use. default:[0]',
 )
+
+parser.add_argument(
+    '--depth',
+    type=int,
+    default=None,
+    )
 
 parser.add_argument(
     '--honey',
@@ -62,6 +68,9 @@ elif args.arch == 'googlenet':
 elif args.arch == 'densenet':
     orimodel = import_module(f'model.{args.arch}').densenet().to(device)
     model = import_module(f'model.{args.arch}').densenet(honey=args.honey).to(device)
+elif args.arch == 'vgglayerwise':
+    orimodel = import_module(f'model.{args.arch}').VGG(args.cfg, depth = args.depth).to(device)
+    model = import_module(f'model.{args.arch}').BeeVGG(args.cfg, honeysource=args.honey, depth = args.depth).to(device)
 
 if args.data_set == 'cifar10':
     input_image_size = 32
@@ -82,13 +91,13 @@ for name, module in orimodel.named_modules():
 
         if isinstance(module, nn.Conv2d):
             orichannel += orimodel.state_dict()[name + '.weight'].size(0)
-            print(orimodel.state_dict()[name + '.weight'].size(0))
+            #print(orimodel.state_dict()[name + '.weight'].size(0))
 
 for name, module in model.named_modules():
 
         if isinstance(module, nn.Conv2d):
             channel += model.state_dict()[name + '.weight'].size(0)
-            print(model.state_dict()[name + '.weight'].size(0))
+            #print(model.state_dict()[name + '.weight'].size(0))
 
 print('--------------UnPrune Model--------------')
 print('Channels: %d'%(orichannel))
@@ -103,6 +112,6 @@ print('FLOPS: %.2f M'%(flops/1000000))
 
 print('--------------Compress Rate--------------')
 print('Channels Prune Rate: %d/%d (%.2f%%)' % (channel, orichannel, 100. * channel / orichannel))
-print('Params Compress Rate: %.2f M/%.2f M(%.2f%%)' % (params/1000000, oriparams/1000000, 100. * params / oriparams))
-print('FLOPS Compress Rate: %.2f M/%.2f M(%.2f%%)' % (flops/1000000, oriflops/1000000, 100. * flops / oriflops))
+print('Params Compress Rate: %.6f M/%.6f M(%.6f%%)' % (params/1000000, oriparams/1000000, 100. * params / oriparams))
+print('FLOPS Compress Rate: %.6f M/%.6f M(%.6f%%)' % (flops/1000000, oriflops/1000000, 100. * flops / oriflops))
 

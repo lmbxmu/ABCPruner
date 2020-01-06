@@ -31,7 +31,7 @@ parser.add_argument(
 	'--gpus',
 	type=int,
 	nargs='+',
-	default=[0],
+	default=None,
 	help='Select gpu_id to use. default:[0]',
 )
 
@@ -124,8 +124,8 @@ parser.add_argument(
 parser.add_argument(
     '--lr',
     type=float,
-    default=1e-2,
-    help='Learning rate for train. default:1e-2'
+    default=0.1,
+    help='Learning rate for train. default:0.1'
 )
 
 parser.add_argument(
@@ -139,7 +139,7 @@ parser.add_argument(
 parser.add_argument(
     '--weight_decay',
     type=float,
-    default=5e-4,
+    default=1e-4,
     help='The weight decay of loss. default:5e-4'
 )
 
