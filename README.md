@@ -180,4 +180,4 @@ optional arguments:
 
 ## Tips
 
-If you find any problems, please feel free to contact to the authors (lmbxmu@stu.xmu.edu.cn or yxzhangxmu@163.com ).
+Any problem, free to contact lmbxmu@stu.xmu.edu.cn or yxzhangxmu@163.com.
