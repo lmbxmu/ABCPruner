@@ -20,7 +20,7 @@ If you find ABCPruner useful in your research, please consider citing:
 ```
 
 
-### Result Models
+### Experimental Results
 
 We provide some models pruned by our ABCPruner and its training logger & configuration file.
 
