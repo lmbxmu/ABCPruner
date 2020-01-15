@@ -43,7 +43,30 @@ python bee_imagenet.py
 --random_rule random_pretrain
 ```
 
-## Get FLOPS
+
+
+### BeePruning for Pre-trained model（with LabelSmooth）
+
+```shell
+python bee_imagenet_smooth.py 
+--data_path ../data/ImageNet2012 
+--honey_model ./pretrain/resnet18.pth 
+--job_dir ./experiment/resnet_imagenet 
+--arch resnet
+--cfg resnet18
+--lr 0.01 
+--lr_decay_step 75 112 
+--num_epochs 150 
+--gpus 0 
+--calfitness_epoch 2 
+--max_cycle 50 
+--max_preserve 9 
+--food_number 10 
+--food_limit 5 
+--random_rule random_pretrain
+```
+
+### Get FLOPS
 
 ```shell
 python get_flops.py 
