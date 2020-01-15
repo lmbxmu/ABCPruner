@@ -7,11 +7,12 @@ import utils.common as utils
 import os
 import copy
 import time
+import math
 import sys
 import numpy as np
 import heapq
 import random
-from data import imagenet
+from data import imagenet_dali
 from importlib import import_module
 
 conv_num_cfg = {
@@ -23,19 +24,44 @@ conv_num_cfg = {
 	'resnet152' : 50 
 }
 
+#label smooth
+class CrossEntropyLabelSmooth(nn.Module):
+
+  def __init__(self, num_classes, epsilon):
+    super(CrossEntropyLabelSmooth, self).__init__()
+    self.num_classes = num_classes
+    self.epsilon = epsilon
+    self.logsoftmax = nn.LogSoftmax(dim=1)
+
+  def forward(self, inputs, targets):
+    log_probs = self.logsoftmax(inputs)
+    targets = torch.zeros_like(log_probs).scatter_(1, targets.unsqueeze(1), 1)
+    targets = (1 - self.epsilon) * targets + self.epsilon / self.num_classes
+    loss = (-targets * log_probs).mean(0).sum()
+    return loss
+
+
 food_dimension = conv_num_cfg[args.cfg]
 
 device = torch.device(f"cuda:{args.gpus[0]}") if torch.cuda.is_available() else 'cpu'
 checkpoint = utils.checkpoint(args)
 logger = utils.get_logger(os.path.join(args.job_dir + 'logger.log'))
-loss_func = nn.CrossEntropyLoss().cuda(args.gpus)
+loss_func = nn.CrossEntropyLoss()
+label_smooth = 0.1
+criterion_smooth = CrossEntropyLabelSmooth(1000, label_smooth)
+criterion_smooth = criterion_smooth.cuda()
 
 # Data
 print('==> Preparing data..')
-data_tmp = imagenet.Data(args)
-trainLoader = data_tmp.loader_train
-testLoader = data_tmp.loader_test
-
+def get_data_set(type='train'):
+    if type == 'train':
+        return imagenet_dali.get_imagenet_iter_dali('train', args.data_path, args.train_batch_size,
+                                                   num_threads=4, crop=224, device_id=args.gpus[0], num_gpus=1)
+    else:
+        return imagenet_dali.get_imagenet_iter_dali('val', args.data_path, args.eval_batch_size,
+                                                   num_threads=4, crop=224, device_id=args.gpus[0], num_gpus=1)
+trainLoader = get_data_set('train')
+testLoader = get_data_set('test')
 
 
 if args.from_scratch == False:
@@ -67,6 +93,27 @@ if args.from_scratch == False:
     origin_model.load_state_dict(ckpt)
     oristate_dict = origin_model.state_dict()
 
+def adjust_learning_rate(optimizer, epoch, step, len_epoch, args):
+    """LR schedule that should yield 76% converged accuracy with batch size 256"""
+    factor = epoch // 30
+
+    if epoch >= 80:
+        factor = factor + 1
+
+    lr = args.lr * (0.1 ** factor)
+
+    """Warmup"""
+    if epoch < 5 and args.warm_up:
+        lr = lr * float(1 + step + epoch * len_epoch) / (5. * len_epoch)
+
+
+   #print('epoch{}\tlr{}'.format(epoch,lr))
+
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
+
+#Our artificial bee colony code is based on the framework at https://www.cnblogs.com/ybl20000418/p/11366576.html 
 #Define BeeGroup 
 class BeeGroup():
     """docstring for BeeGroup"""
@@ -77,7 +124,7 @@ class BeeGroup():
         self.rfitness = 0 
         self.trail = 0
 
-#Initilize global element
+#Initialize global element
 best_honey = BeeGroup()
 NectraSource = []
 EmployedBee = []
@@ -221,19 +268,27 @@ def train(model, optimizer, trainLoader, args, epoch, topk=(1,)):
     losses = utils.AverageMeter()
     accuracy = utils.AverageMeter()
     top5_accuracy = utils.AverageMeter()
-    print_freq = len(trainLoader) // args.train_batch_size * 10
+    print_freq = trainLoader._size // args.train_batch_size // 10
     start_time = time.time()
-
-    for batch, (inputs, targets) in enumerate(trainLoader):
+    #trainLoader = get_data_set('train')
+    #i = 0
+    for batch, batch_data in enumerate(trainLoader):
         #i+=1
         #if i>5:
             #break
 
-        inputs = inputs.to(device)#.cuda(async=True),
-        targets = targets.to(device)#.cuda(async=True)
-        optimizer.zero_grad()
+        inputs = batch_data[0]['data'].to(device)
+
+        targets = batch_data[0]['label'].squeeze().long().to(device)
+
+        #train_loader_len = int(math.ceil(trainLoader._size / args.train_batch_size))
+
+        #adjust_learning_rate(optimizer, epoch, batch, train_loader_len, args)
+
+
         output = model(inputs)
-        loss = loss_func(output, targets)
+        loss = criterion_smooth(output, targets)
+        optimizer.zero_grad()
         loss.backward()
         losses.update(loss.item(), inputs.size(0))
         optimizer.step()
@@ -252,11 +307,12 @@ def train(model, optimizer, trainLoader, args, epoch, topk=(1,)):
                 'Top1 {:.2f}%\t'
                 'Top5 {:.2f}%\t'
                 'Time {:.2f}s'.format(
-                    epoch, batch, len(trainLoader),
+                    epoch, batch * args.train_batch_size, trainLoader._size,
                     float(losses.avg), float(accuracy.avg), float(top5_accuracy.avg), cost_time
                 )
             )
             start_time = current_time
+            
 
 #Testing
 def test(model, testLoader, topk=(1,)):
@@ -267,13 +323,16 @@ def test(model, testLoader, topk=(1,)):
     top5_accuracy = utils.AverageMeter()
 
     start_time = time.time()
-
+    #testLoader = get_data_set('test')
+    #i = 0
     with torch.no_grad():
-        for batch_idx, (inputs, targets) in enumerate(testLoader):
+        for batch_idx, batch_data in enumerate(testLoader):
             #i+=1
             #if i > 5:
                 #break
-            inputs, targets = inputs.to(device), targets.to(device)
+            inputs = batch_data[0]['data'].to(device)
+            targets = batch_data[0]['label'].squeeze().long().to(device)
+            targets = targets.cuda(non_blocking=True)
             outputs = model(inputs)
             loss = loss_func(outputs, targets)
 
@@ -317,6 +376,7 @@ def calculationFitness(honey, args):
 
     model.train()
 
+    #trainLoader = get_data_set('train')
     #i = 0
     for epoch in range(args.calfitness_epoch):
         #print(epoch)
@@ -324,30 +384,39 @@ def calculationFitness(honey, args):
             #i += 1
             #print(i)
             #if i > 5:
-             #   break
+                #break
             #if i < 10:
             #   continue
             #i = 0
             inputs = batch_data[0]['data'].to(device)
             targets = batch_data[0]['label'].squeeze().long().to(device)
+
+            #train_loader_len = int(math.ceil(trainLoader._size / args.train_batch_size))
+
+            #adjust_learning_rate(optimizer, epoch, batch, train_loader_len, args)
+
+            #print('epoch{}\tlr{}'.format(epoch,lr))
+            
             optimizer.zero_grad()
             output = model(inputs)
-            loss = loss_func(output, targets)
+            loss = criterion_smooth(output, targets)
             loss.backward()
             optimizer.step()
+
+        trainLoader.reset()
 
     #test(model, loader.testLoader)
 
     fit_accurary = utils.AverageMeter()
     model.eval()
-
+    #testLoader = get_data_set('test')
     #i = 0
     with torch.no_grad():
         for batch_idx, batch_data in enumerate(testLoader):
             #print(i)
             #i += 1
             #if i > 5:
-                #break
+                #reak
             #if i < 10:
                 #continue
             #i = 0
@@ -356,6 +425,7 @@ def calculationFitness(honey, args):
             outputs = model(inputs)
             predicted = utils.accuracy(outputs, targets,topk=(1,5))
             fit_accurary.update(predicted[1], inputs.size(0))
+    testLoader.reset()
 
 
     #current_time = time.time()
@@ -377,9 +447,9 @@ def calculationFitness(honey, args):
 
 
 
-#Initilize Bee-Pruning
-def initilize():
-    print('==> Initilizing Honey_model..')
+#Initialize Bee-Pruning
+def initialize():
+    print('==> Initializing Honey_model..')
     global best_honey, NectraSource, EmployedBee, OnLooker
 
     for i in range(args.food_number):
@@ -389,24 +459,24 @@ def initilize():
         for j in range(food_dimension):
             NectraSource[i].code.append(copy.deepcopy(random.randint(1,args.max_preserve)))
 
-        #initilize honey souce
+        #initialize honey souce
         NectraSource[i].fitness = calculationFitness(NectraSource[i].code, args)
         NectraSource[i].rfitness = 0
         NectraSource[i].trail = 0
 
-        #initilize employed bee  
+        #initialize employed bee  
         EmployedBee[i].code = copy.deepcopy(NectraSource[i].code)
         EmployedBee[i].fitness=NectraSource[i].fitness 
         EmployedBee[i].rfitness=NectraSource[i].rfitness 
         EmployedBee[i].trail=NectraSource[i].trail
 
-        #initilize onlooker 
+        #initialize onlooker 
         OnLooker[i].code = copy.deepcopy(NectraSource[i].code)
         OnLooker[i].fitness=NectraSource[i].fitness 
         OnLooker[i].rfitness=NectraSource[i].rfitness 
         OnLooker[i].trail=NectraSource[i].trail
 
-    #initilize best honey
+    #initialize best honey
     best_honey.code = copy.deepcopy(NectraSource[0].code)
     best_honey.fitness = NectraSource[0].fitness
     best_honey.rfitness = NectraSource[0].rfitness
@@ -557,6 +627,7 @@ def main():
         if args.resume == None:
 
             test(origin_model, testLoader, topk=(1, 5))
+            testLoader.reset()
 
             if args.best_honey == None:
 
@@ -566,7 +637,7 @@ def main():
                 
                 print('==> Start BeePruning..')
 
-                initilize()
+                initialize()
 
                 #memorizeBestSource()
 
@@ -631,6 +702,7 @@ def main():
             optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
             scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_decay_step, gamma=0.1)
             code = best_honey.code
+            start_epoch = args.calfitness_epoch
 
         else:
              # Model
@@ -683,6 +755,8 @@ def main():
             'honey_code': code
         }
         checkpoint.save_model(state, epoch + 1, is_best)
+        trainLoader.reset()
+        testLoader.reset()
 
     logger.info('Best accurary(top5): {:.3f} (top1): {:.3f}'.format(float(best_acc),float(best_acc_top1)))
 

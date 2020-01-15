@@ -26,7 +26,11 @@ parser.add_argument(
     action='store_true',
     help='Train from scratch?'
 )
-
+parser.add_argument(
+    '--warm_up',
+    action='store_true',
+    help='Use warm up LR?'
+)
 parser.add_argument(
 	'--gpus',
 	type=int,
@@ -140,7 +144,7 @@ parser.add_argument(
     '--weight_decay',
     type=float,
     default=1e-4,
-    help='The weight decay of loss. default:5e-4'
+    help='The weight decay of loss. default:1e-4'
 )
 
 parser.add_argument(

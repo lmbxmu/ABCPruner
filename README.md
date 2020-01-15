@@ -15,12 +15,13 @@ Additionally, we provide several pre-trained models used in our experiments.
 
 #### CIFAR-10
 
-| [VGG16](https://drive.google.com/open?id=1pz-_0CCdL-1psIQ545uJ3xT6S_AAnqet) | [ResNet56](https://drive.google.com/open?id=1pt-LgK3kI_4ViXIQWuOP0qmmQa3p2qW5) | [ResNet110](https://drive.google.com/open?id=1Uqg8_J-q2hcsmYTAlRtknCSrkXDqYDMD) |[GoogLeNet](https://drive.google.com/open?id=1YNno621EuTQTVY2cElf8YEue9J4W5BEd) | [DenseNet40](https://drive.google.com/open?id=1TV_b98le-R0sDIkhc5pfrO6zn4uggOWl) | 
+| [VGG16](https://drive.google.com/open?id=1pz-_0CCdL-1psIQ545uJ3xT6S_AAnqet) | [ResNet56](https://drive.google.com/open?id=1pt-LgK3kI_4ViXIQWuOP0qmmQa3p2qW5) | [ResNet110](https://drive.google.com/open?id=1Uqg8_J-q2hcsmYTAlRtknCSrkXDqYDMD) |[GoogLeNet](https://drive.google.com/open?id=1YNno621EuTQTVY2cElf8YEue9J4W5BEd) |
 
 #### ImageNet
 
-|[VGG16](https://download.pytorch.org/models/vgg16_bn-6c64b313.pth) |[ResNet18](https://download.pytorch.org/models/resnet18-5c106cde.pth) | [ResNet34](https://download.pytorch.org/models/resnet34-333f7ec4.pth) | [ResNet50](https://download.pytorch.org/models/resnet50-19c8e357.pth) |
+|[ResNet18](https://download.pytorch.org/models/resnet18-5c106cde.pth) | [ResNet34](https://download.pytorch.org/models/resnet34-333f7ec4.pth) | [ResNet50](https://download.pytorch.org/models/resnet50-19c8e357.pth) |
 [ResNet101](https://download.pytorch.org/models/resnet101-5d3b4d8f.pth) | [ResNet152](https://download.pytorch.org/models/resnet152-b121ed2d.pth)|
+
 ### BeePruning for Pre-trained model
 
 ```shell
@@ -42,21 +43,6 @@ python bee_imagenet.py
 --random_rule random_pretrain
 ```
 
-### BeePruning for Pre-trained model with dali learning method
-```shell
-python bee_imagenet_dali.py 
-```
-
-### BeePruning for Pre-trained model with dali learning method and dali initial lr
-```shell
-python bee_imagenet_dalilr.py 
-```
-
-### Train_from scratch for DALI
-
-```shell
-python DALI.py -a resnet18 ../data/ImageNet2012/ILSVRC2012_img_train ../data/ImageNet2012/val
-```
 ## Get FLOPS
 
 ```shell
@@ -113,7 +99,8 @@ optional arguments:
   --best_honey_past     If you want to load a resume without honey code, input your honey hode into this hyper-parameter default:None
 
   --honey               get flops and params of a model with specified honey(prune plan )
-  --from_scratch        train from scratch default:False
+  --from_scratch        if this parameter exist, train from scratch 
+  --warm_up             if this parameter exist, use warm up lr like DALI
   
 
 ```

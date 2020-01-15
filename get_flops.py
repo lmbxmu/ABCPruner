@@ -39,12 +39,13 @@ parser.add_argument(
 
 parser.add_argument(
     '--honey',
-    type=int,
-    nargs='+',
+    type=str,
     default=None,
     help='The prune rate of CNN guided by best honey')
-
 args = parser.parse_args()
+honey = list(map(int,args.honey.split(', ')))
+
+
 
 device = torch.device(f"cuda:{args.gpus[0]}") if torch.cuda.is_available() else 'cpu'
 
@@ -52,32 +53,32 @@ print('==> Building model..')
 
 if args.arch == 'vgg_cifar':
     orimodel = import_module(f'model.{args.arch}').VGG(args.cfg).to(device)
-    model = import_module(f'model.{args.arch}').BeeVGG(args.cfg, honeysource=args.honey).to(device)
+    model = import_module(f'model.{args.arch}').BeeVGG(args.cfg, honeysource=honey).to(device)
 elif args.arch == 'resnet_cifar':
     orimodel = import_module(f'model.{args.arch}').resnet(args.cfg).to(device)
-    model = import_module(f'model.{args.arch}').resnet(args.cfg,honey=args.honey).to(device)
+    model = import_module(f'model.{args.arch}').resnet(args.cfg,honey=honey).to(device)
 elif args.arch == 'vgg':
     orimodel = import_module(f'model.{args.arch}').VGG(num_classes=1000).to(device)
-    model = import_module(f'model.{args.arch}').BeeVGG(honeysource=args.honey, num_classes = 1000).to(device)
+    model = import_module(f'model.{args.arch}').BeeVGG(honeysource=honey, num_classes = 1000).to(device)
 elif args.arch == 'resnet':
     orimodel = import_module(f'model.{args.arch}').resnet(args.cfg).to(device)
-    model = import_module(f'model.{args.arch}').resnet(args.cfg,honey=args.honey).to(device)
+    model = import_module(f'model.{args.arch}').resnet(args.cfg,honey=honey).to(device)
 elif args.arch == 'googlenet':
     orimodel = import_module(f'model.{args.arch}').googlenet().to(device)
-    model = import_module(f'model.{args.arch}').googlenet(honey=args.honey).to(device)
+    model = import_module(f'model.{args.arch}').googlenet(honey=honey).to(device)
 elif args.arch == 'densenet':
     orimodel = import_module(f'model.{args.arch}').densenet().to(device)
-    model = import_module(f'model.{args.arch}').densenet(honey=args.honey).to(device)
+    model = import_module(f'model.{args.arch}').densenet(honey=honey).to(device)
 elif args.arch == 'vgglayerwise':
     orimodel = import_module(f'model.{args.arch}').VGG(args.cfg, depth = args.depth).to(device)
-    model = import_module(f'model.{args.arch}').BeeVGG(args.cfg, honeysource=args.honey, depth = args.depth).to(device)
+    model = import_module(f'model.{args.arch}').BeeVGG(args.cfg, honeysource=honey, depth = args.depth).to(device)
 
 if args.data_set == 'cifar10':
     input_image_size = 32
 elif args.data_set == 'imagenet':
     input_image_size = 224
 
-input = torch.randn(1, 3, input_image_size, input_image_size).cuda()
+input = torch.randn(1, 3, input_image_size, input_image_size).to(device)
 
 orichannel = 0
 channel = 0
@@ -111,7 +112,7 @@ print('FLOPS: %.2f M'%(flops/1000000))
 
 
 print('--------------Compress Rate--------------')
-print('Channels Prune Rate: %d/%d (%.2f%%)' % (channel, orichannel, 100. * channel / orichannel))
-print('Params Compress Rate: %.6f M/%.6f M(%.6f%%)' % (params/1000000, oriparams/1000000, 100. * params / oriparams))
-print('FLOPS Compress Rate: %.6f M/%.6f M(%.6f%%)' % (flops/1000000, oriflops/1000000, 100. * flops / oriflops))
+print('Channels Prune Rate: %d/%d (%.2f%%)' % (channel, orichannel, 100. * (orichannel - channel) / orichannel))
+print('Params Compress Rate: %.2f M/%.2f M(%.2f%%)' % (params/1000000, oriparams/1000000, 100. * (oriparams- params) / oriparams))
+print('FLOPS Compress Rate: %.2f M/%.2f M(%.2f%%)' % (flops/1000000, oriflops/1000000, 100. * (oriflops- flops) / oriflops))
 

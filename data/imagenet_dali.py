@@ -56,6 +56,7 @@ class HybridValPipe(Pipeline):
         return [output, self.labels]
 
 
+
 def get_imagenet_iter_dali(type, image_dir, batch_size, num_threads, device_id, num_gpus, crop, val_size=256,
                            world_size=1,
                            local_rank=0):
