@@ -2,8 +2,6 @@
 
 Pruning neural network model via ABCPruner.
 
-Channel pruning is among the predominant approaches to compress the very deep neural network. Most of existing works either try to guide the pruned network to inherit the most important filters from a pre-trained model following inefficient layer-wise fine-tuning/optimization, or require expert-designed regularization for retraining. Such rule-of-thumb designs are usually sub-optimal. In this paper, we propose a new channel pruning method based on artificial bee colony algorithm (ABC), dubbed as ABCPruner, which aims to efficiently find optimal pruned structure, *i.e.*, channel number in each layer. However, the huge combinations of pruned structure make it intractable for very deep networks. To this end, we first propose to shrink the search space where the preserved channels are limited to a specific space, thus the combinations of pruned structure can be significantly reduced. And then, we formulate the search of optimal pruned structure as the optimization problem and integrate the ABC algorithm to solve it in an automatic manner without human involvement. ABCPruner has been demonstrated to be more effective and the fine-tuning is efficiently conducted in an end-to-end manner. Experiments on CIFAR-10 show that ABCPruner reduces 73.68\% FLOPs and 88.68\% parameters with even 0.06\% accuracy improvement for VGGNet-16. On ILSVRC-2012, ABCPruner achieves a ..-FLOPs and ...-parameters reductions with negligible accuracy cost for ResNet-152.
-
 ![https://github.com/zyxxmu/Images/blob/master/ABCPruner/bee_framework.png]()
 
 Framework of ABCPruner. The structure set is initialized first. For each structure, the filters are randomly selected in each layer and its accuracy after two epochs of fine-tune is regarded as the fitness. Then, the ABC algorithm is introduced to update the structure set for some cycles. The one with best fitness is regarded as the optimal pruned structure and the trained weights serve as a warm-up for fine-tuning.
@@ -20,7 +18,6 @@ If you find ABCPruner useful in your research, please consider citing:
   year      = {2020}
 }
 ```
-
 ## Requirements
 
 -  Pytorch >= 1.0.1
