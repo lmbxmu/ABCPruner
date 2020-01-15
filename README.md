@@ -1,6 +1,6 @@
-# BeePruning
+# ABCPruner
 
-Pruning neural network model via BeePruning. 
+Pruning neural network model via Artificial Bee Colony. 
 
 ## Requirements
 
