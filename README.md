@@ -146,7 +146,7 @@ optional arguments:
 
 ### Model
 
-We provide some models pruned by our ABCPruner with logger & config file.
+We provide some models pruned by our ABCPruner and its training logger & configuration file.
 
 (The percentages in parentheses indicate the pruned propotion)
 
