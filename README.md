@@ -1,6 +1,6 @@
-# Channel Pruning via Automatic Structure Search
+# ABCPruner
 
-Pruning neural network model via ABCPruner.
+Pruning neural network model via Artificial Bee Colony.
 
 ![https://github.com/zyxxmu/Images/blob/master/ABCPruner/bee_framework.png]()
 
