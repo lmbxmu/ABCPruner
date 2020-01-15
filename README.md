@@ -2,7 +2,7 @@
 
 Pruning neural network model via Artificial Bee Colony.
 
-![https://raw.githubusercontent.com/zyxxmu/Images/master/ABCPruner/bee_framework.png]()
+![](https://raw.githubusercontent.com/zyxxmu/Images/master/ABCPruner/bee_framework.png)
 
 Framework of ABCPruner. The structure set is initialized first. For each structure, the filters are randomly selected in each layer and its accuracy after two epochs of fine-tune is regarded as the fitness. Then, the ABC algorithm is introduced to update the structure set for some cycles. The one with best fitness is regarded as the optimal pruned structure and the trained weights serve as a warm-up for fine-tuning.
 
