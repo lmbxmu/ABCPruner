@@ -40,7 +40,7 @@ We provide some models pruned by our ABCPruner and its training logger & configu
 | Network   | Params         | Flops            | Channels      | Acc Top1 | Acc Top5 | Model                                                        |
 | --------- | -------------- | ---------------- | ------------- | -------- | -------- | ------------------------------------------------------------ |
 | ResNet18  | 6.6M(43.55%)   | 1005.71M(44.88%) | 3894(18.88%)  | 67.28%   | 87.28%   | [ResNet-18 ABCPruner-70%](https://drive.google.com/open?id=1e7aVys8C6Y3aNdY-sVaT1w57MLVVpjQW) |
-| ResNet18  | 9.5M(18.72)    | 968.13M(46.94%)  | 4220(12.08%)  | 67.80%   | 88.00%   | [ResNet-18 ABCPruner-100%](https://drive.google.com/open?id=1xtAqQY0ceH-ls9SOaUPjp9Q8WXs6nF2z) |
+| ResNet18  | 9.5M(18.72%)   | 968.13M(46.94%)  | 4220(12.08%)  | 67.80%   | 88.00%   | [ResNet-18 ABCPruner-100%](https://drive.google.com/open?id=1xtAqQY0ceH-ls9SOaUPjp9Q8WXs6nF2z) |
 | ResNet34  | 10.52M(51.76%) | 1509.76M(58.97%) | 5376(25.09%)  | 70.45%   | 89.688%  | [ResNet-34 ABCPruner-50%](https://drive.google.com/open?id=1l6o13j-n3olVfdVEhwaS52Jy5Dz39MKD) |
 | ResNet34  | 10.12M(53.58%) | 2170.77M(41%)    | 6655(21.82%)  | 70.98%   | 90.053%  | [ResNet-34 ABCPruner-90%](https://drive.google.com/open?id=1kTnng9i66ktMjw0OmJz0j_IRZtWISETF) |
 | ResNet50  | 9.1M(64.38%)   | 1295.4M(68.68%)  | 21426(19.33%) | 72.582%  | 90.19%   | [ResNet-50 ABCPruner-50%](https://drive.google.com/open?id=1o4huhsGlbe2kIlBywN3Dt9fvF5Yyrotm) |
