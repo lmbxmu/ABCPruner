@@ -20,7 +20,7 @@ If you find ABCPruner useful in your research, please consider citing:
 ```
 
 
-### Result Models
+### Experimental Results
 
 We provide some models pruned by our ABCPruner and its training logger & configuration file.
 
@@ -52,9 +52,6 @@ We provide some models pruned by our ABCPruner and its training logger & configu
 | ResNet101  | 17.72M(60.21%) | 3164.91M(59.78%) | 43168(17.19%) | 75.823%  | 92.736%  | [ABCPruner-80%](https://drive.google.com/open?id=1y5I6MVSH1n0vVpG1IuQbnZBdf3yLVKTo) |
 | ResNet152  | 15.62M(74.06%) | 2719.47M(76.57%) | 58750(22.4%)  | 76.004%  | 92.901%  | [ABCPruner-50%](https://drive.google.com/open?id=15wmCGNhwrHxHOO6xvPNMnUuIz6H_00oH) |
 | ResNet152  | 24.07M(60.01%) | 4309.52M(62.87%) | 62368(17.62%) | 77.115%  | 93.481%  | [ABCPruner-70%](https://drive.google.com/open?id=18BBSgCP81ZpjpFNEx5vL2R1goTLWQ88-) |
-
-
-
 ## Running Code
 
 ### Requirements
@@ -178,9 +175,6 @@ optional arguments:
 
 ```
 
-
-### 
-
 ## Tips
 
-If you find any problems, please feel free to contact to the authors (lmbxmu@stu.xmu.edu.cn or yxzhangxmu@163.com ).
+Any problem, free to contact lmbxmu@stu.xmu.edu.cn or yxzhangxmu@163.com.
