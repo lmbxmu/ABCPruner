@@ -281,9 +281,9 @@ def train(model, optimizer, trainLoader, args, epoch, topk=(1,)):
 
         targets = batch_data[0]['label'].squeeze().long().to(device)
 
-        train_loader_len = int(math.ceil(trainLoader._size / args.train_batch_size))
+        #train_loader_len = int(math.ceil(trainLoader._size / args.train_batch_size))
 
-        adjust_learning_rate(optimizer, epoch, batch, train_loader_len, args)
+        #adjust_learning_rate(optimizer, epoch, batch, train_loader_len, args)
 
 
         output = model(inputs)
@@ -391,9 +391,9 @@ def calculationFitness(honey, args):
             inputs = batch_data[0]['data'].to(device)
             targets = batch_data[0]['label'].squeeze().long().to(device)
 
-            train_loader_len = int(math.ceil(trainLoader._size / args.train_batch_size))
+            #train_loader_len = int(math.ceil(trainLoader._size / args.train_batch_size))
 
-            adjust_learning_rate(optimizer, epoch, batch, train_loader_len, args)
+            #adjust_learning_rate(optimizer, epoch, batch, train_loader_len, args)
 
             #print('epoch{}\tlr{}'.format(epoch,lr))
             
@@ -416,7 +416,7 @@ def calculationFitness(honey, args):
             #print(i)
             #i += 1
             #if i > 5:
-                #break
+                #reak
             #if i < 10:
                 #continue
             #i = 0
@@ -608,7 +608,7 @@ def main():
             model = nn.DataParallel(model, device_ids=args.gpus)
  
         optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-        #scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_decay_step, gamma=0.1)
+        scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_decay_step, gamma=0.1)
 
         if args.resume:
             print('=> Resuming from ckpt {}'.format(args.resume))
@@ -618,7 +618,7 @@ def main():
 
             model.load_state_dict(ckpt['state_dict'])
             optimizer.load_state_dict(ckpt['optimizer'])
-            #scheduler.load_state_dict(ckpt['scheduler'])
+            scheduler.load_state_dict(ckpt['scheduler'])
             print('=> Continue from epoch {}...'.format(start_epoch))
 
 
@@ -700,7 +700,7 @@ def main():
                 model = nn.DataParallel(model, device_ids=args.gpus)
 
             optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-            #scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_decay_step, gamma=0.1)
+            scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_decay_step, gamma=0.1)
             code = best_honey.code
             start_epoch = args.calfitness_epoch
 
@@ -723,11 +723,11 @@ def main():
                 pass
 
             optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-            #scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_decay_step, gamma=0.1)
+            scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_decay_step, gamma=0.1)
 
             model.load_state_dict(state_dict)
             optimizer.load_state_dict(resumeckpt['optimizer'])
-            #scheduler.load_state_dict(resumeckpt['scheduler'])
+            scheduler.load_state_dict(resumeckpt['scheduler'])
             start_epoch = resumeckpt['epoch']
 
             if len(args.gpus) != 1:
@@ -737,7 +737,7 @@ def main():
 
     for epoch in range(start_epoch, args.num_epochs):
         train(model, optimizer, trainLoader, args, epoch, topk=(1, 5))
-        #scheduler.step()
+        scheduler.step()
         test_acc, test_acc_top1 = test(model, testLoader,topk=(1, 5))
 
         is_best = best_acc < test_acc
@@ -750,7 +750,7 @@ def main():
             'state_dict': model_state_dict,
             'best_acc': best_acc,
             'optimizer': optimizer.state_dict(),
-            #'scheduler': scheduler.state_dict(),
+            'scheduler': scheduler.state_dict(),
             'epoch': epoch + 1,
             'honey_code': code
         }

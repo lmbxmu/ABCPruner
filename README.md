@@ -28,29 +28,30 @@ We provide some models pruned by our ABCPruner and its training logger & configu
 
 #### CIFAR-10
 
-| Network   | Params        | Flops          | Channels     | Accuracy | Model                                                        |
-| --------- | ------------- | -------------- | ------------ | -------- | ------------------------------------------------------------ |
-| VGG16     | 1.67M(88.68%) | 82.81M(73.68%) | 1639(61.20%) | 93.08%   | [VGGNet-16 ABCPruner-80%](https://drive.google.com/file/d/1aUq4uEH0ogJHaNZF5Li0FKh4QTpNpLAu/view?usp=sharing) |
-| ResNet56  | 0.39M(54.20%) | 58.54M(54.13%) | 1482(27.07%) | 93.23%   | [ResNet-56 ABCPruner-70%](https://drive.google.com/open?id=1Hh4bgrH1yoAbbfw_YllU8OLpmHb3wMxP) |
-| ResNet110 | 0.56M(67.41%) | 89.87M(65.04%) | 2701(33.28%) | 93.58%   | [ResNet-110 ABCPruner-60%](https://drive.google.com/open?id=1EP9H8pejr_eaRsQvi9SRgvJAtZiFCpJ9) |
-| GoogLeNet | 2.46M(60.14%) | 513.19M(66.56) | 6150(22.19%) | 94.84%   | [GoogleNet ABCPruner-30%](https://drive.google.com/open?id=1OPyCMZncqJqOsrf-CjQBlMHLJ6VuBUwH) |
+| Full Model | Params        | Flops          | Channels     | Accuracy | Pruned Model                                                 |
+| ---------- | ------------- | -------------- | ------------ | -------- | ------------------------------------------------------------ |
+| VGG16      | 1.67M(88.68%) | 82.81M(73.68%) | 1639(61.20%) | 93.08%   | [ABCPruner-80%](https://drive.google.com/file/d/1aUq4uEH0ogJHaNZF5Li0FKh4QTpNpLAu/view?usp=sharing) |
+| ResNet56   | 0.39M(54.20%) | 58.54M(54.13%) | 1482(27.07%) | 93.23%   | [ABCPruner-70%](https://drive.google.com/open?id=1Hh4bgrH1yoAbbfw_YllU8OLpmHb3wMxP) |
+| ResNet110  | 0.56M(67.41%) | 89.87M(65.04%) | 2701(33.28%) | 93.58%   | [ABCPruner-60%](https://drive.google.com/open?id=1EP9H8pejr_eaRsQvi9SRgvJAtZiFCpJ9) |
+| GoogLeNet  | 2.46M(60.14%) | 513.19M(66.56) | 6150(22.19%) | 94.84%   | [ ABCPruner-30%](https://drive.google.com/open?id=1OPyCMZncqJqOsrf-CjQBlMHLJ6VuBUwH) |
 
 #### ImageNet
 
-| Network   | Params         | Flops            | Channels      | Acc Top1 | Acc Top5 | Model                                                        |
-| --------- | -------------- | ---------------- | ------------- | -------- | -------- | ------------------------------------------------------------ |
-| ResNet18  | 6.6M(43.55%)   | 1005.71M(44.88%) | 3894(18.88%)  | 67.28%   | 87.28%   | [ResNet-18 ABCPruner-70%](https://drive.google.com/open?id=1e7aVys8C6Y3aNdY-sVaT1w57MLVVpjQW) |
-| ResNet18  | 9.5M(18.72%)   | 968.13M(46.94%)  | 4220(12.08%)  | 67.80%   | 88.00%   | [ResNet-18 ABCPruner-100%](https://drive.google.com/open?id=1xtAqQY0ceH-ls9SOaUPjp9Q8WXs6nF2z) |
-| ResNet34  | 10.52M(51.76%) | 1509.76M(58.97%) | 5376(25.09%)  | 70.45%   | 89.688%  | [ResNet-34 ABCPruner-50%](https://drive.google.com/open?id=1l6o13j-n3olVfdVEhwaS52Jy5Dz39MKD) |
-| ResNet34  | 10.12M(53.58%) | 2170.77M(41%)    | 6655(21.82%)  | 70.98%   | 90.053%  | [ResNet-34 ABCPruner-90%](https://drive.google.com/open?id=1kTnng9i66ktMjw0OmJz0j_IRZtWISETF) |
-| ResNet50  | 9.1M(64.38%)   | 1295.4M(68.68%)  | 21426(19.33%) | 72.582%  | 90.19%   | [ResNet-50 ABCPruner-50%](https://drive.google.com/open?id=1o4huhsGlbe2kIlBywN3Dt9fvF5Yyrotm) |
-| ResNet50  | 11.24M(56.01%) | 1794.45M(56.61%) | 22348(15.86%) | 73.516%  | 91.512%  | [ResNet-50 ABCPruner-70%](https://drive.google.com/open?id=1mu2AvwihBGiJRu9OfGJSGrRX4eGZkrl4) |
-| ResNet50  | 11.75(54.02%)  | 1890.6M(54.29%)  | 22518(15.22%) | 73.864%  | 91.687%  | [ResNet-50 ABCPruner-80%](https://drive.google.com/open?id=1wSVbAJCNUL-_8XT3lBFEmmKouKTOrMrU) |
-| ResNet50  | 18.02(29.49%)  | 2555.55M(38.21%) | 24040(9.49%)  | 74.843%  | 92.272%  | [ResNet-50 ABCPruner-100%](https://drive.google.com/open?id=1AjHhXl_frcl1Htk61w2eMR3bSgG42XJs) |
-| ResNet101 | 12.94M(70.94%) | 1975.61M(74.89%) | 41316(21.56%) | 74.76%   | 92.08%   | [ResNet-101 ABCPruner-50%](https://drive.google.com/open?id=1F1vvAnzYixiUAmB2-q3Bj9637N1ek3ij) |
-| ResNet101 | 17.72M(60.21%) | 3164.91M(59.78%) | 43168(17.19%) | 75.823%  | 92.736%  | [ResNet-101 ABCPruner-80%](https://drive.google.com/open?id=1y5I6MVSH1n0vVpG1IuQbnZBdf3yLVKTo) |
-| ResNet152 | 15.62M(74.06%) | 2719.47M(76.57%) | 58750(22.4%)  | 76.004%  | 92.901%  | [ResNet-152 ABCPruner-50%](https://drive.google.com/open?id=15wmCGNhwrHxHOO6xvPNMnUuIz6H_00oH) |
-| ResNet152 | 24.07M(60.01%) | 4309.52M(62.87%) | 62368(17.62%) | 77.115%  | 93.481%  | [ResNet-152 ABCPruner-70%](https://drive.google.com/open?id=18BBSgCP81ZpjpFNEx5vL2R1goTLWQ88-) |
+| Full Model | Params         | Flops            | Channels      | Acc Top1 | Acc Top5 | Pruned Model                                                 |
+| ---------- | -------------- | ---------------- | ------------- | -------- | -------- | ------------------------------------------------------------ |
+| ResNet18   | 6.6M(43.55%)   | 1005.71M(44.88%) | 3894(18.88%)  | 67.28%   | 87.28%   | [ABCPruner-70%](https://drive.google.com/open?id=1e7aVys8C6Y3aNdY-sVaT1w57MLVVpjQW) |
+| ResNet18   | 9.5M(18.72%)   | 968.13M(46.94%)  | 4220(12.08%)  | 67.80%   | 88.00%   | [ABCPruner-100%](https://drive.google.com/open?id=1xtAqQY0ceH-ls9SOaUPjp9Q8WXs6nF2z) |
+| ResNet34   | 10.52M(51.76%) | 1509.76M(58.97%) | 5376(25.09%)  | 70.45%   | 89.688%  | [ABCPruner-50%](https://drive.google.com/open?id=1l6o13j-n3olVfdVEhwaS52Jy5Dz39MKD) |
+| ResNet34   | 10.12M(53.58%) | 2170.77M(41%)    | 6655(21.82%)  | 70.98%   | 90.053%  | [ABCPruner-90%](https://drive.google.com/open?id=1kTnng9i66ktMjw0OmJz0j_IRZtWISETF) |
+| ResNet50   | 7.35M(71.24%)  | 944.85M(68.68%)  | 20576(25.53%) | 70.289%  | 89.631%  | [ABCPruner-30%](https://drive.google.com/open?id=1-p1xYqI-14Ybe4yCSwffyY_AxqPOEkVt) |
+| ResNet50   | 9.1M(64.38%)   | 1295.4M(68.68%)  | 21426(19.33%) | 72.582%  | 90.19%   | [ABCPruner-50%](https://drive.google.com/open?id=1o4huhsGlbe2kIlBywN3Dt9fvF5Yyrotm) |
+| ResNet50   | 11.24M(56.01%) | 1794.45M(56.61%) | 22348(15.86%) | 73.516%  | 91.512%  | [ABCPruner-70%](https://drive.google.com/open?id=1mu2AvwihBGiJRu9OfGJSGrRX4eGZkrl4) |
+| ResNet50   | 11.75(54.02%)  | 1890.6M(54.29%)  | 22518(15.22%) | 73.864%  | 91.687%  | [ABCPruner-80%](https://drive.google.com/open?id=1wSVbAJCNUL-_8XT3lBFEmmKouKTOrMrU) |
+| ResNet50   | 18.02(29.49%)  | 2555.55M(38.21%) | 24040(9.49%)  | 74.843%  | 92.272%  | [ABCPruner-100%](https://drive.google.com/open?id=1AjHhXl_frcl1Htk61w2eMR3bSgG42XJs) |
+| ResNet101  | 12.94M(70.94%) | 1975.61M(74.89%) | 41316(21.56%) | 74.76%   | 92.08%   | [ABCPruner-50%](https://drive.google.com/open?id=1F1vvAnzYixiUAmB2-q3Bj9637N1ek3ij) |
+| ResNet101  | 17.72M(60.21%) | 3164.91M(59.78%) | 43168(17.19%) | 75.823%  | 92.736%  | [ABCPruner-80%](https://drive.google.com/open?id=1y5I6MVSH1n0vVpG1IuQbnZBdf3yLVKTo) |
+| ResNet152  | 15.62M(74.06%) | 2719.47M(76.57%) | 58750(22.4%)  | 76.004%  | 92.901%  | [ABCPruner-50%](https://drive.google.com/open?id=15wmCGNhwrHxHOO6xvPNMnUuIz6H_00oH) |
+| ResNet152  | 24.07M(60.01%) | 4309.52M(62.87%) | 62368(17.62%) | 77.115%  | 93.481%  | [ABCPruner-70%](https://drive.google.com/open?id=18BBSgCP81ZpjpFNEx5vL2R1goTLWQ88-) |
 
 
 
@@ -178,37 +179,7 @@ optional arguments:
 ```
 
 
-### Model
-
-We provide some models pruned by our ABCPruner and its training logger & configuration file.
-
-(The percentages in parentheses indicate the pruned propotion)
-
-#### CIFAR-10
-
-| Network   | Params        | Flops          | Channels     | Accuracy | Model                                                        |
-| --------- | ------------- | -------------- | ------------ | -------- | ------------------------------------------------------------ |
-| VGG16     | 1.67M(88.68%) | 82.81M(73.68%) | 1639(61.20%) | 93.08%   | [VGG16-acc-93.08](https://drive.google.com/file/d/1aUq4uEH0ogJHaNZF5Li0FKh4QTpNpLAu/view?usp=sharing) |
-| ResNet56  | 0.39M(54.20%) | 58.54M(54.13%) | 1482(27.07%) | 93.23%   | [ResNet56-acc-93.23](https://drive.google.com/open?id=1Hh4bgrH1yoAbbfw_YllU8OLpmHb3wMxP) |
-| ResNet110 | 0.56M(67.41%) | 89.87M(65.04%) | 2701(33.28%) | 93.58%   | [ResNet110-acc-93.58](https://drive.google.com/open?id=1EP9H8pejr_eaRsQvi9SRgvJAtZiFCpJ9) |
-| GoogLeNet | 2.46M(60.14%) | 513.19M(66.56) | 6150(22.19%) | 94.84%   | [GoogLeNet-acc-94.84](https://drive.google.com/open?id=1OPyCMZncqJqOsrf-CjQBlMHLJ6VuBUwH) |
-
-#### ImageNet
-
-| Network   | Params         | Flops            | Channels      | Acc Top1 | Acc Top5 | Model                                                        |
-| --------- | -------------- | ---------------- | ------------- | -------- | -------- | ------------------------------------------------------------ |
-| ResNet18  | 6.6M(43.55%)   | 1005.71M(44.88%) | 3894(18.88%)  | 67.28%   | 87.28%   | [ResNet18-1](https://drive.google.com/open?id=1e7aVys8C6Y3aNdY-sVaT1w57MLVVpjQW) |
-| ResNet18  | 9.5M(18.72)    | 968.13M(46.94%)  | 4220(12.08%)  | 67.80%   | 88.00%   | [ResNet18-2](https://drive.google.com/open?id=1xtAqQY0ceH-ls9SOaUPjp9Q8WXs6nF2z) |
-| ResNet34  | 10.52M(51.76%) | 1509.76M(58.97%) | 5376(25.09%)  | 70.45%   | 89.688%  | [ResNet34-1](https://drive.google.com/open?id=1l6o13j-n3olVfdVEhwaS52Jy5Dz39MKD) |
-| ResNet34  | 10.12M(53.58%) | 2170.77M(41%)    | 6655(21.82%)  | 70.98%   | 90.053%  | [ResNet34-2](https://drive.google.com/open?id=1kTnng9i66ktMjw0OmJz0j_IRZtWISETF) |
-| ResNet50  | 9.1M(64.38%)   | 1295.4M(68.68%)  | 21426(19.33%) | 72.582%  | 90.19%   | [Resnet50-1](https://drive.google.com/open?id=1o4huhsGlbe2kIlBywN3Dt9fvF5Yyrotm) |
-| ResNet50  | 11.24M(56.01%) | 1794.45M(56.61%) | 22348(15.86%) | 73.516%  | 91.512%  | [Resnet50-2](https://drive.google.com/open?id=1mu2AvwihBGiJRu9OfGJSGrRX4eGZkrl4) |
-| ResNet50  | 11.75(54.02%)  | 1890.6M(54.29%)  | 22518(15.22%) | 73.864%  | 91.687%  | [Resnet50-3](https://drive.google.com/open?id=1wSVbAJCNUL-_8XT3lBFEmmKouKTOrMrU) |
-| ResNet50  | 18.02(29.49%)  | 2555.55M(38.21%) | 24040(9.49%)  | 74.843%  | 92.272%  | [Resnet50-4](https://drive.google.com/open?id=1AjHhXl_frcl1Htk61w2eMR3bSgG42XJs) |
-| ResNet101 | 12.94M(70.94%) | 1975.61M(74.89%) | 41316(21.56%) | 74.683%  | 92.152%  | [Resnet101-1](https://drive.google.com/open?id=1F1vvAnzYixiUAmB2-q3Bj9637N1ek3ij) |
-| ResNet101 | 17.72M(60.21%) | 3164.91M(59.78%) | 43168(17.19%) | 75.823%  | 92.736%  | [Resnet101-2](https://drive.google.com/open?id=1y5I6MVSH1n0vVpG1IuQbnZBdf3yLVKTo) |
-| ResNet152 | 15.62M(74.06%) | 2719.47M(76.57%) | 58750(22.4%)  | 76.004%  | 92.901%  | [ResNet152-1](https://drive.google.com/open?id=15wmCGNhwrHxHOO6xvPNMnUuIz6H_00oH) |
-| ResNet152 | 24.07M(60.01%) | 4309.52M(62.87%) | 62368(17.62%) | 77.115%  | 93.481%  | [ResNet152-2](https://drive.google.com/open?id=18BBSgCP81ZpjpFNEx5vL2R1goTLWQ88-) |
+### 
 
 ## Tips
 
