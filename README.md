@@ -1,9 +1,9 @@
 # ABCPruner
 
-Pruning neural network model via Artificial Bee Colony.
+Channel pruning via artificial bee colony (ABC) in an automatic manner.
 
 <div align=center><img src="https://raw.githubusercontent.com/zyxxmu/Images/master/ABCPruner/bee_framework.png"/></div>
-<center>Figure 1. Framework of the proposed ABCPruner</center>
+<center>Figure 1. Framework of the proposed ABCPruner.</center>
 
 
 
