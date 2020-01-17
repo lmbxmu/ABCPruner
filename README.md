@@ -23,7 +23,7 @@ If you find ABCPruner useful in your research, please consider citing:
 
 ### Experimental Results
 
-We provide some models pruned by our ABCPruner and its training logger & configuration file.
+We provide our pruned models in the paper and their training loggers and configuration files below.
 
 (The percentages in parentheses indicate the pruned propotion)
 
