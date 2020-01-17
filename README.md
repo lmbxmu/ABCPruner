@@ -2,7 +2,7 @@
 
 Pruning neural network model via Artificial Bee Colony.
 
-<div align=center><img width="150" height="150" src="https://raw.githubusercontent.com/zyxxmu/Images/master/ABCPruner/bee_framework.png"/></div>
+<div align=center><img src="https://raw.githubusercontent.com/zyxxmu/Images/master/ABCPruner/bee_framework.png"/></div>
 
 
 Figure 1. Framework of the proposed ABCPruner.
