@@ -2,9 +2,7 @@
 
 Channel pruning via artificial bee colony (ABC) in an automatic manner.
 
-<div align=center><img src="https://raw.githubusercontent.com/zyxxmu/Images/master/bee_framework.png"/></div>
-
-<font color=white>sssssssssssssssssssssssssssssss</font>Figure 1. Framework of the proposed ABCPruner.
+<div align=center><img src="https://raw.githubusercontent.com/zyxxmu/Images/master/ABCPruner/ABCPruner_framework.png"/></div>
 
 ## Citation
 
@@ -42,14 +40,14 @@ We provide our pruned models in the paper and their training loggers and configu
 | Full Model | Params         | Flops            | Channels      | Acc Top1 | Acc Top5 | Pruned Model                                                 |
 | ---------- | -------------- | ---------------- | ------------- | -------- | -------- | ------------------------------------------------------------ |
 | ResNet18   | 6.6M(43.55%)   | 1005.71M(44.88%) | 3894(18.88%)  | 67.28%   | 87.28%   | [<font size=2>ABCPruner-70%</font>](https://drive.google.com/open?id=1e7aVys8C6Y3aNdY-sVaT1w57MLVVpjQW) |
-| ResNet18   | 9.5M(18.72%)   | 968.13M(46.94%)  | 4220(12.08%)  | 67.80%   | 88.00%   | [<font size=2>ABCPruner-100%</font>](https://drive.google.com/open?id=1xtAqQY0ceH-ls9SOaUPjp9Q8WXs6nF2z) |
+| ResNet18   | 9.5M(18.72%)   | 968.13M(46.94%)  | 4220(12%)     | 67.80%   | 88.00%   | [<font size=2>ABCPruner-100%</font>](https://drive.google.com/open?id=1xtAqQY0ceH-ls9SOaUPjp9Q8WXs6nF2z) |
 | ResNet34   | 10.52M(51.76%) | 1509.76M(58.97%) | 5376(25.09%)  | 70.45%   | 89.688%  | [<font size = 2>ABCPruner-50%</font>](https://drive.google.com/open?id=1l6o13j-n3olVfdVEhwaS52Jy5Dz39MKD) |
 | ResNet34   | 10.12M(53.58%) | 2170.77M(41%)    | 6655(21.82%)  | 70.98%   | 90.053%  | [<font size=2>ABCPruner-90%</font>](https://drive.google.com/open?id=1kTnng9i66ktMjw0OmJz0j_IRZtWISETF) |
 | ResNet50   | 7.35M(71.24%)  | 944.85M(68.68%)  | 20576(25.53%) | 70.289%  | 89.631%  | [<font size=2>ABCPruner-30%</font>](https://drive.google.com/open?id=1-p1xYqI-14Ybe4yCSwffyY_AxqPOEkVt) |
 | ResNet50   | 9.1M(64.38%)   | 1295.4M(68.68%)  | 21426(19.33%) | 72.582%  | 90.19%   | [<font size=2>ABCPruner-50%</font>](https://drive.google.com/open?id=1o4huhsGlbe2kIlBywN3Dt9fvF5Yyrotm) |
 | ResNet50   | 11.24M(56.01%) | 1794.45M(56.61%) | 22348(15.86%) | 73.516%  | 91.512%  | [<font size=2>ABCPruner-70%</font>](https://drive.google.com/open?id=1mu2AvwihBGiJRu9OfGJSGrRX4eGZkrl4) |
 | ResNet50   | 11.75(54.02%)  | 1890.6M(54.29%)  | 22518(15.22%) | 73.864%  | 91.687%  | [<font size=2>ABCPruner-80%</font>](https://drive.google.com/open?id=1wSVbAJCNUL-_8XT3lBFEmmKouKTOrMrU) |
-| ResNet50   | 18.02(29.49%)  | 2555.55M(38.21%) | 24040(9.49%)  | 74.843%  | 92.272%  | [<font size=2>ABCPruner-100%</font>](https://drive.google.com/open?id=1AjHhXl_frcl1Htk61w2eMR3bSgG42XJs) |
+| ResNet50   | 18.02(29.5%)   | 2555.55M(38.21%) | 24040(9.5%)   | 74.843%  | 92.272%  | [<font size=2>ABCPruner-100%</font>](https://drive.google.com/open?id=1AjHhXl_frcl1Htk61w2eMR3bSgG42XJs) |
 | ResNet101  | 12.94M(70.94%) | 1975.61M(74.89%) | 41316(21.56%) | 74.76%   | 92.08%   | [<font size=2>ABCPruner-50%</font>](https://drive.google.com/open?id=1F1vvAnzYixiUAmB2-q3Bj9637N1ek3ij) |
 | ResNet101  | 17.72M(60.21%) | 3164.91M(59.78%) | 43168(17.19%) | 75.823%  | 92.736%  | [<font size=2>ABCPruner-80%</font>](https://drive.google.com/open?id=1y5I6MVSH1n0vVpG1IuQbnZBdf3yLVKTo) |
 | ResNet152  | 15.62M(74.06%) | 2719.47M(76.57%) | 58750(22.4%)  | 76.004%  | 92.901%  | [<font size=2>ABCPruner-50%</font>](https://drive.google.com/open?id=15wmCGNhwrHxHOO6xvPNMnUuIz6H_00oH) |
