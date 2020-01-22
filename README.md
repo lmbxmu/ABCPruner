@@ -73,7 +73,7 @@ Additionally, we provide several pre-trained models used in our experiments.
 
 |[ResNet18](https://download.pytorch.org/models/resnet18-5c106cde.pth) | [ResNet34](https://download.pytorch.org/models/resnet34-333f7ec4.pth) | [ResNet50](https://download.pytorch.org/models/resnet50-19c8e357.pth) |[ResNet101](https://download.pytorch.org/models/resnet101-5d3b4d8f.pth) | [ResNet152](https://download.pytorch.org/models/resnet152-b121ed2d.pth)|
 
-### Code Running
+### Training
 
 ```shell
 python bee_imagenet.py
@@ -94,7 +94,6 @@ python bee_imagenet.py
 --random_rule random_pretrain、
 ```
 
-
 ### Get FLOPS & Params
 
 ```shell
@@ -102,8 +101,14 @@ python get_flops_params.py
 --data_set cifar10 
 --arch resnet_cifar 
 --cfg resnet56
---honey 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5
+--honey 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 \# honey is the optimal pruned structure and can be found in the training logger.
 ```
+
+### Run Our Results
+```shell
+
+```
+
 
 ### Other Arguments
 
