@@ -26,6 +26,25 @@ parser.add_argument(
     action='store_true',
     help='Train from scratch?'
 )
+
+parser.add_argument(
+    '--bee_from_scratch',
+    action='store_true',
+    help='Beepruning from scratch?'
+)
+
+parser.add_argument(
+    '--label_smooth',
+    action='store_true',
+    help='Use Lable smooth criterion?'
+)
+
+parser.add_argument(
+    '--split_optimizer',
+    action='store_true',
+    help='Split the weight parameter that need weight decay?'
+)
+
 parser.add_argument(
     '--warm_up',
     action='store_true',
@@ -135,9 +154,8 @@ parser.add_argument(
 parser.add_argument(
     '--lr_decay_step',
     type=int,
-    nargs='+',
-    default=[50, 100],
-    help='the iterval of learn rate. default:50, 100'
+    default=30,
+    help='the iterval of learn rate decay. default:30'
 )
 
 parser.add_argument(

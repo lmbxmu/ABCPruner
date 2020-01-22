@@ -152,7 +152,7 @@ optional arguments:
   --momentum MOMENTUM   Momentum for MomentumOptimizer. default:0.9
   --lr LR               Learning rate for train. default:1e-2
   --lr_decay_step LR_DECAY_STEP [LR_DECAY_STEP ...]
-                        the iterval of learn rate. default:50, 100
+                        the iterval of learn rate decay. default:30
   --weight_decay WEIGHT_DECAY
                         The weight decay of loss. default:5e-4
   --random_rule RANDOM_RULE
@@ -173,7 +173,11 @@ optional arguments:
   --honey               get flops and params of a model with specified honey(prune plan )
   --from_scratch        if this parameter exist, train from scratch 
   --warm_up             if this parameter exist, use warm up lr like DALI
-  
+  --bee_from_scratch    if this parameter exist, beepruning from scratch
+  --label_smooth        if this parameter exist, use Lable smooth criterion
+  --split_optimizer     if this parameter exist, split the weight parameter that need weight decay
+
+
 
 ```
 
