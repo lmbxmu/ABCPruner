@@ -73,7 +73,7 @@ Additionally, we provide several pre-trained models used in our experiments.
 
 |[ResNet18](https://download.pytorch.org/models/resnet18-5c106cde.pth) | [ResNet34](https://download.pytorch.org/models/resnet34-333f7ec4.pth) | [ResNet50](https://download.pytorch.org/models/resnet50-19c8e357.pth) |[ResNet101](https://download.pytorch.org/models/resnet101-5d3b4d8f.pth) | [ResNet152](https://download.pytorch.org/models/resnet152-b121ed2d.pth)|
 
-### ABCPruner (example with imagenet)
+### Code Running
 
 ```shell
 python bee_imagenet.py
