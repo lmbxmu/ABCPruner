@@ -101,7 +101,7 @@ python get_flops_params.py
 --data_set cifar10 
 --arch resnet_cifar 
 --cfg resnet56
---honey 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 \# honey is the optimal pruned structure and can be found in the training logger.
+--honey 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 # honey is the optimal pruned structure and can be found in the training logger.
 ```
 
 ### Run Our Results
