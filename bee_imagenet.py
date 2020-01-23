@@ -714,30 +714,33 @@ def main():
                 model = nn.DataParallel(model, device_ids=args.gpus)
 
 
+    if args.test_only:
+        test(model, testLoader,topk=(1, 5))
+        
+    else:
+        for epoch in range(start_epoch, args.num_epochs):
+            train(model, optimizer, trainLoader, args, epoch, topk=(1, 5))
+            test_acc, test_acc_top1 = test(model, testLoader,topk=(1, 5))
 
-    for epoch in range(start_epoch, args.num_epochs):
-        train(model, optimizer, trainLoader, args, epoch, topk=(1, 5))
-        test_acc, test_acc_top1 = test(model, testLoader,topk=(1, 5))
+            is_best = best_acc < test_acc
+            best_acc_top1 = max(best_acc_top1, test_acc_top1)
+            best_acc = max(best_acc, test_acc)
 
-        is_best = best_acc < test_acc
-        best_acc_top1 = max(best_acc_top1, test_acc_top1)
-        best_acc = max(best_acc, test_acc)
+            model_state_dict = model.module.state_dict() if len(args.gpus) > 1 else model.state_dict()
 
-        model_state_dict = model.module.state_dict() if len(args.gpus) > 1 else model.state_dict()
+            state = {
+                'state_dict': model_state_dict,
+                'best_acc': best_acc,
+                'optimizer': optimizer.state_dict(),
+                #'scheduler': scheduler.state_dict(),
+                'epoch': epoch + 1,
+                'honey_code': code
+            }
+            checkpoint.save_model(state, epoch + 1, is_best)
+            trainLoader.reset()
+            testLoader.reset()
 
-        state = {
-            'state_dict': model_state_dict,
-            'best_acc': best_acc,
-            'optimizer': optimizer.state_dict(),
-            #'scheduler': scheduler.state_dict(),
-            'epoch': epoch + 1,
-            'honey_code': code
-        }
-        checkpoint.save_model(state, epoch + 1, is_best)
-        trainLoader.reset()
-        testLoader.reset()
-
-    logger.info('Best accurary(top5): {:.3f} (top1): {:.3f}'.format(float(best_acc),float(best_acc_top1)))
+        logger.info('Best accurary(top5): {:.3f} (top1): {:.3f}'.format(float(best_acc),float(best_acc_top1)))
 
 if __name__ == '__main__':
     main()

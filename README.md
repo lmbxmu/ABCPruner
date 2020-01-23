@@ -91,7 +91,7 @@ python bee_imagenet.py
 --max_preserve 9 
 --food_number 10 
 --food_limit 5 
---random_rule random_pretrain、
+--random_rule random_pretrain
 ```
 
 ### Get FLOPS & Params
@@ -106,7 +106,14 @@ python get_flops_params.py
 
 ### Run Our Results
 ```shell
-
+python bee_imagenet.py
+--data_path ../data/ImageNet2012 
+--job_dir ./experiment/resnet_imagenet 
+--arch resnet
+--cfg resnet18
+--test_only
+--best_honey  5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 # honey is the optimal pruned structure and can be found in the training logger.     
+--best_honey_s   # best_honey_s is the optimal pruned structure' checkpoint.     
 ```
 
 
@@ -154,15 +161,12 @@ optional arguments:
   --best_honey          If this hyper-parameter exists, skip bee-pruning and fine-tune from this prune method default:None
   --best_honey_s        Path to the best_honey default:None
   --best_honey_past     If you want to load a resume without honey code, input your honey hode into this hyper-parameter default:None
-
   --honey               get flops and params of a model with specified honey(prune plan )
   --from_scratch        if this parameter exist, train from scratch 
   --warm_up             if this parameter exist, use warm up lr like DALI
   --bee_from_scratch    if this parameter exist, beepruning from scratch
   --label_smooth        if this parameter exist, use Lable smooth criterion
   --split_optimizer     if this parameter exist, split the weight parameter that need weight decay
-
-
 
 ```
 
