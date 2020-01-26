@@ -1,4 +1,4 @@
-# ABCPruner
+# ABCPruner ([Link] (https://arxiv.org/abs/2001.08565))
 
 Channel pruning via artificial bee colony (ABC) in an automatic manner.
 
