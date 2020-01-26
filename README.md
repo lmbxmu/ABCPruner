@@ -9,10 +9,10 @@ Channel pruning via artificial bee colony (ABC) in an automatic manner.
 If you find ABCPruner useful in your research, please consider citing:
 
 ```
-@inproceedings{lin2020ABCPruner,   
+@article{lin2020ABCPruner,   
   title     = {Channel Pruning via Automatic Structure Search},
   author    = {Mingbao Lin, Rongrong Ji, Yuxin Zhang, Baochang Zhang, Yongjian Wu, Feiyue Huang, and Yonghong Tian},
-  booktitle = { },
+  journal = {arXiv preprint arXiv:2001.08565},
   year      = {2020}
 }
 ```
