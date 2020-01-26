@@ -12,7 +12,7 @@ If you find ABCPruner useful in your research, please consider citing:
 @article{lin2020ABCPruner,   
   title     = {Channel Pruning via Automatic Structure Search},
   author    = {Mingbao Lin, Rongrong Ji, Yuxin Zhang, Baochang Zhang, Yongjian Wu, Feiyue Huang, and Yonghong Tian},
-  journal = {arXiv preprint arXiv:2001.08565},
+  journal   = {arXiv preprint arXiv:2001.08565},
   year      = {2020}
 }
 ```
