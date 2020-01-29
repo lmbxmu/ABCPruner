@@ -1,4 +1,4 @@
-# The ABC algorithm is modified based on https://www.cnblogs.com/ybl20000418/p/11366576.html
+# The ABC algorithm is modified based on https://www.cnblogs.com/ybl20000418/p/11366576.html （In Chinese）
 import torch
 import torch.nn as nn
 import torch.optim as optim
