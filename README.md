@@ -22,7 +22,7 @@ If you find ABCPruner useful in your research, please consider citing:
 
 We provide our pruned models in the paper and their training loggers and configuration files below.
 
-(The percentages in parentheses indicate the pruned propotion)
+(The percentages in parentheses indicate the pruned proportion)
 
 #### CIFAR-10
 
