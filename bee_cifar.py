@@ -1,4 +1,3 @@
-# The ABC algorithm is modified based on https://www.cnblogs.com/ybl20000418/p/11366576.html （In Chinese）
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -833,7 +832,8 @@ def main():
             model = import_module(f'model.{args.arch}').densenet(honey=best_honey.code).to(device)
 
         if args.best_honey_s:
-            model.load_state_dict(torch.load(args.best_honey_s))
+            bestckpt = torch.load(args.best_honey_s)
+            model.load_state_dict(bestckpt['state_dict'])
         else:
             model.load_state_dict(best_honey_state)
 
@@ -844,8 +844,10 @@ def main():
         if len(args.gpus) != 1:
             model = nn.DataParallel(model, device_ids=args.gpus)
 
-        optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-        scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_decay_step, gamma=0.1)
+        if args.best_honey == None:
+
+            optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
+            scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_decay_step, gamma=0.1)
         code = best_honey.code
 
     else:
@@ -875,27 +877,31 @@ def main():
             model = nn.DataParallel(model, device_ids=args.gpus)
 
 
-    for epoch in range(start_epoch, args.num_epochs):
-        train(model, optimizer, loader.trainLoader, args, epoch)
-        scheduler.step()
-        test_acc = test(model, loader.testLoader)
+    if args.test_only:
+        test(model, loader.testLoader)
 
-        is_best = best_acc < test_acc
-        best_acc = max(best_acc, test_acc)
+    else: 
+        for epoch in range(start_epoch, args.num_epochs):
+            train(model, optimizer, loader.trainLoader, args, epoch)
+            scheduler.step()
+            test_acc = test(model, loader.testLoader)
 
-        model_state_dict = model.module.state_dict() if len(args.gpus) > 1 else model.state_dict()
+            is_best = best_acc < test_acc
+            best_acc = max(best_acc, test_acc)
 
-        state = {
-            'state_dict': model_state_dict,
-            'best_acc': best_acc,
-            'optimizer': optimizer.state_dict(),
-            'scheduler': scheduler.state_dict(),
-            'epoch': epoch + 1,
-            'honey_code': code
-        }
-        checkpoint.save_model(state, epoch + 1, is_best)
+            model_state_dict = model.module.state_dict() if len(args.gpus) > 1 else model.state_dict()
 
-    logger.info('Best accurary: {:.3f}'.format(float(best_acc)))
+            state = {
+                'state_dict': model_state_dict,
+                'best_acc': best_acc,
+                'optimizer': optimizer.state_dict(),
+                'scheduler': scheduler.state_dict(),
+                'epoch': epoch + 1,
+                'honey_code': code
+            }
+            checkpoint.save_model(state, epoch + 1, is_best)
+
+        logger.info('Best accurary: {:.3f}'.format(float(best_acc)))
 
 if __name__ == '__main__':
     main()

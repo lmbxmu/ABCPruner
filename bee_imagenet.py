@@ -1,4 +1,3 @@
-# The ABC algorithm is modified based on https://www.cnblogs.com/ybl20000418/p/11366576.html （In Chinese）
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -84,7 +83,7 @@ def adjust_learning_rate(optimizer, epoch, step, len_epoch, args):
     lr = args.lr * (0.1 ** factor)
 
     """Warmup"""
-    if epoch < 5 && args.warm_up:
+    if epoch < 5 and args.warm_up:
         lr = lr * float(1 + step + epoch * len_epoch) / (5. * len_epoch)
 
 
@@ -669,7 +668,8 @@ def main():
             code = best_honey.code
 
             if args.best_honey_s:
-                model.load_state_dict(torch.load(args.best_honey_s))
+                bestckpt = torch.load(args.best_honey_s)
+                model.load_state_dict(bestckpt['state_dict'])
             else:
                 model.load_state_dict(best_honey_state)
 
@@ -680,10 +680,12 @@ def main():
             if len(args.gpus) != 1:
                 model = nn.DataParallel(model, device_ids=args.gpus)
 
-            optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-            #scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_decay_step, gamma=0.1)
-            code = best_honey.code
-            start_epoch = args.calfitness_epoch
+            if args.best_honey == None:
+
+                optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
+                #scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_decay_step, gamma=0.1)
+                code = best_honey.code
+                start_epoch = args.calfitness_epoch
 
         else:
              # Model
