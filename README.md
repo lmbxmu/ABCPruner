@@ -113,7 +113,7 @@ python bee_imagenet.py
 --cfg resnet18
 --test_only
 --best_honey  5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 # honey is the optimal pruned structure and can be found in the training logger.     
---best_honey_s   # best_honey_s is the optimal pruned structure' checkpoint.     
+--best_honey_s   # path of pruned model     
 ```
 
 
