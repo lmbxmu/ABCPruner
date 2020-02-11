@@ -104,7 +104,7 @@ python get_flops_params.py
 --honey 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 # honey is the optimal pruned structure and can be found in the training logger.
 ```
 
-### Run Our Results
+### Check Our Results
 ```shell
 python bee_imagenet.py
 --data_path ../data/ImageNet2012 
