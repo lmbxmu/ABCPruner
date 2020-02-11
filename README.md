@@ -112,7 +112,7 @@ python bee_imagenet.py
 --arch resnet
 --cfg resnet18
 --test_only
---honey_model #path of the full model.
+--honey_model #path of the pre-trained model.
 --best_honey  5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 # honey is the optimal pruned structure and can be found in the training logger.     
 --best_honey_s   # path of the pruned model. 
 ```
