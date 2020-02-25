@@ -174,4 +174,5 @@ optional arguments:
 
 ## Tips
 
-Any problem, free to contact lmbxmu@stu.xmu.edu.cn or yxzhangxmu@163.com.
+Any problem, free to contact the authors via emails: lmbxmu@stu.xmu.edu.cn or yxzhangxmu@163.com, or adding the first author's wechat as friends (id: lmbcxy) for convenient communications.
+
