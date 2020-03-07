@@ -4,6 +4,12 @@ Channel pruning via artificial bee colony (ABC) in an automatic manner.
 
 <div align=center><img src="https://raw.githubusercontent.com/zyxxmu/Images/master/ABCPruner/ABCPruner_framework.png"/></div>
 
+
+## Tips
+
+Any problem, free to contact the authors via emails: lmbxmu@stu.xmu.edu.cn or yxzhangxmu@163.com, or adding the first author's wechat as friends (id: lmbcxy if you are using wechat) for convenient communications.
+
+
 ## Citation
 
 If you find ABCPruner useful in your research, please consider citing:
@@ -171,8 +177,3 @@ optional arguments:
   --split_optimizer     if this parameter exist, split the weight parameter that need weight decay
 
 ```
-
-## Tips
-
-Any problem, free to contact the authors via emails: lmbxmu@stu.xmu.edu.cn or yxzhangxmu@163.com, or adding the first author's wechat as friends (id: lmbcxy) for convenient communications.
-
