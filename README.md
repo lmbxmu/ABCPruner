@@ -7,7 +7,7 @@ Channel pruning via artificial bee colony (ABC) in an automatic manner.
 
 ## Tips
 
-Any problem, free to contact the authors via emails: lmbxmu@stu.xmu.edu.cn or yxzhangxmu@163.com, or adding the first author's wechat as friends (id: lmbcxy if you are using wechat) for convenient communications.
+Any problem, free to contact the authors via emails: lmbxmu@stu.xmu.edu.cn or yxzhangxmu@163.com, or adding the first author's wechat as friends (id: lmbcxy if you are using wechat) for convenient communications. Do not post issues with github as much as possible, just in case that I could not receive the emails from github thus ignore the posted issues.
 
 
 ## Citation
