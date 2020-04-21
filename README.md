@@ -1,6 +1,6 @@
 # Channel Pruning via Automatic Structure Search ([Link](https://arxiv.org/abs/2001.08565))
 
-Channel pruning via artificial bee colony (ABC) in an automatic manner.
+PyTorch implementation of ABCPruner (IJCAI 2020).
 
 <div align=center><img src="https://raw.githubusercontent.com/zyxxmu/Images/master/ABCPruner/ABCPruner_framework.png"/></div>
 
@@ -15,10 +15,10 @@ Any problem, free to contact the authors via emails: lmbxmu@stu.xmu.edu.cn or yx
 If you find ABCPruner useful in your research, please consider citing:
 
 ```
-@article{lin2020channel,
+@inproceedings{lin2020channel,
   title={Channel Pruning via Automatic Structure Search},
   author={Lin, Mingbao and Ji, Rongrong and Zhang, Yuxin and Zhang, Baochang and Wu, Yongjian and Tian, Yonghong},
-  journal={arXiv preprint arXiv:2001.08565},
+  booktitle={The 29th International Conference on Artificial Intelligence},
   year={2020}
 }
 ```
