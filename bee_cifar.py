@@ -833,7 +833,7 @@ def main():
 
         if args.best_honey_s:
             bestckpt = torch.load(args.best_honey_s)
-            model.load_state_dict(bestckpt['state_dict'])
+            model.load_state_dict(bestckpt)
         else:
             model.load_state_dict(best_honey_state)
 
