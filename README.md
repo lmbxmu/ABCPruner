@@ -34,10 +34,10 @@ We provide our pruned models in the paper and their training loggers and configu
 
 | Full Model | Params        | Flops          | Channels     | Accuracy | Pruned Model                                                 |
 | ---------- | ------------- | -------------- | ------------ | -------- | ------------------------------------------------------------ |
-| VGG16      | 1.67M(88.68%) | 82.81M(73.68%) | 1639(61.20%) | 93.08%   | [ABCPruner-80%](https://drive.google.com/file/d/1aUq4uEH0ogJHaNZF5Li0FKh4QTpNpLAu/view?usp=sharing) |
-| ResNet56   | 0.39M(54.20%) | 58.54M(54.13%) | 1482(27.07%) | 93.23%   | [ABCPruner-70%](https://drive.google.com/file/d/1Hh4bgrH1yoAbbfw_YllU8OLpmHb3wMxP/view?usp=sharing) |
-| ResNet110  | 0.56M(67.41%) | 89.87M(65.04%) | 2701(33.28%) | 93.58%   | [ABCPruner-60%](https://drive.google.com/file/d/1EP9H8pejr_eaRsQvi9SRgvJAtZiFCpJ9/view?usp=sharing) |
-| GoogLeNet  | 2.46M(60.14%) | 513.19M(66.56) | 6150(22.19%) | 94.84%   | [ ABCPruner-30%](https://drive.google.com/file/d/1OPyCMZncqJqOsrf-CjQBlMHLJ6VuBUwH/view?usp=sharing) |
+| VGG16      | 1.67M(88.68%) | 82.81M(73.68%) | 1639(61.20%) | 93.08%   | [ABCPruner-80%](https://drive.google.com/drive/folders/19p0dqM4g_9ypQ_hgYIUkt7SUJI1w_u-T?usp=sharing) |
+| ResNet56   | 0.39M(54.20%) | 58.54M(54.13%) | 1482(27.07%) | 93.23%   | [ABCPruner-70%](https://drive.google.com/drive/folders/1o3K_y7YFLRu7MSIEHV7kecHKIKm1fUqC?usp=sharing) |
+| ResNet110  | 0.56M(67.41%) | 89.87M(65.04%) | 2701(33.28%) | 93.58%   | [ABCPruner-60%](https://drive.google.com/drive/folders/1WWVqLvLHgUmBpP3huYU_dpbFk5wPMmTV?usp=sharing) |
+| GoogLeNet  | 2.46M(60.14%) | 513.19M(66.56) | 6150(22.19%) | 94.84%   | [ ABCPruner-30%](https://drive.google.com/drive/folders/1vlOAwI_FrQeJU0ntsPQJyQt-mk26OTOc?usp=sharing) |
 
 #### ImageNet
 
@@ -45,19 +45,19 @@ We provide our pruned models in the paper and their training loggers and configu
 
 | Full Model | Params         | Flops            | Channels      | Acc Top1 | Acc Top5 | Pruned Model                                                 |
 | ---------- | -------------- | ---------------- | ------------- | -------- | -------- | ------------------------------------------------------------ |
-| ResNet18   | 6.6M(43.55%)   | 1005.71M(44.88%) | 3894(18.88%)  | 67.28%   | 87.28%   | [<font size=2>ABCPruner-70%</font>](https://drive.google.com/file/d/1e7aVys8C6Y3aNdY-sVaT1w57MLVVpjQW/view?usp=sharing) |
-| ResNet18   | 9.5M(18.72%)   | 968.13M(46.94%)  | 4220(12%)     | 67.80%   | 88.00%   | [<font size=2>ABCPruner-100%</font>](https://drive.google.com/file/d/1xtAqQY0ceH-ls9SOaUPjp9Q8WXs6nF2z/view?usp=sharing) |
-| ResNet34   | 10.52M(51.76%) | 1509.76M(58.97%) | 5376(25.09%)  | 70.45%   | 89.688%  | [<font size = 2>ABCPruner-50%</font>](https://drive.google.com/file/d/1l6o13j-n3olVfdVEhwaS52Jy5Dz39MKD/view?usp=sharing) |
-| ResNet34   | 10.12M(53.58%) | 2170.77M(41%)    | 6655(21.82%)  | 70.98%   | 90.053%  | [<font size=2>ABCPruner-90%</font>](https://drive.google.com/file/d/1kTnng9i66ktMjw0OmJz0j_IRZtWISETF/view?usp=sharing) |
-| ResNet50   | 7.35M(71.24%)  | 944.85M(68.68%)  | 20576(25.53%) | 70.289%  | 89.631%  | [<font size=2>ABCPruner-30%</font>](https://drive.google.com/file/d/1-p1xYqI-14Ybe4yCSwffyY_AxqPOEkVt/view?usp=sharing) |
-| ResNet50   | 9.1M(64.38%)   | 1295.4M(68.68%)  | 21426(19.33%) | 72.582%  | 90.19%   | [<font size=2>ABCPruner-50%</font>](https://drive.google.com/file/d/1o4huhsGlbe2kIlBywN3Dt9fvF5Yyrotm/view?usp=sharing) |
-| ResNet50   | 11.24M(56.01%) | 1794.45M(56.61%) | 22348(15.86%) | 73.516%  | 91.512%  | [<font size=2>ABCPruner-70%</font>](https://drive.google.com/file/d/1mu2AvwihBGiJRu9OfGJSGrRX4eGZkrl4/view?usp=sharing) |
-| ResNet50   | 11.75(54.02%)  | 1890.6M(54.29%)  | 22518(15.22%) | 73.864%  | 91.687%  | [<font size=2>ABCPruner-80%</font>](https://drive.google.com/file/d/1wSVbAJCNUL-_8XT3lBFEmmKouKTOrMrU/view?usp=sharing) |
-| ResNet50   | 18.02(29.5%)   | 2555.55M(38.21%) | 24040(9.5%)   | 74.843%  | 92.272%  | [<font size=2>ABCPruner-100%</font>](https://drive.google.com/file/d/1AjHhXl_frcl1Htk61w2eMR3bSgG42XJs/view?usp=sharing) |
-| ResNet101  | 12.94M(70.94%) | 1975.61M(74.89%) | 41316(21.56%) | 74.683%   | 92.08%   | [<font size=2>ABCPruner-50%</font>](https://drive.google.com/file/d/1F1vvAnzYixiUAmB2-q3Bj9637N1ek3ij/view?usp=sharing) |
-| ResNet101  | 17.72M(60.21%) | 3164.91M(59.78%) | 43168(17.19%) | 75.823%  | 92.736%  | [<font size=2>ABCPruner-80%</font>](https://drive.google.com/file/d/1y5I6MVSH1n0vVpG1IuQbnZBdf3yLVKTo/view?usp=sharing) |
-| ResNet152  | 15.62M(74.06%) | 2719.47M(76.57%) | 58750(22.4%)  | 76.004%  | 92.901%  | [<font size=2>ABCPruner-50%</font>](https://drive.google.com/file/d/15wmCGNhwrHxHOO6xvPNMnUuIz6H_00oH/view?usp=sharing) |
-| ResNet152  | 24.07M(60.01%) | 4309.52M(62.87%) | 62368(17.62%) | 77.115%  | 93.481%  | [<font size=2>ABCPruner-70%</font>](https://drive.google.com/file/d/18BBSgCP81ZpjpFNEx5vL2R1goTLWQ88-/view?usp=sharing) |
+| ResNet18   | 6.6M(43.55%)   | 1005.71M(44.88%) | 3894(18.88%)  | 67.28%   | 87.28%   | [<font size=2>ABCPruner-70%</font>](https://drive.google.com/drive/folders/1ydTZ0VZTs5RKoVqRKX3oOo2zT27-ROGM?usp=sharing) |
+| ResNet18   | 9.5M(18.72%)   | 968.13M(46.94%)  | 4220(12%)     | 67.80%   | 88.00%   | [<font size=2>ABCPruner-100%</font>](https://drive.google.com/drive/folders/1vp65RN9hzveqpgsJWJ5kgHvo40tHTsY6?usp=sharing) |
+| ResNet34   | 10.52M(51.76%) | 1509.76M(58.97%) | 5376(25.09%)  | 70.45%   | 89.688%  | [<font size = 2>ABCPruner-50%</font>](https://drive.google.com/drive/folders/1Nl1YVgwODzPmAalDgDp-qwhAhkkdRLR4?usp=sharing) |
+| ResNet34   | 10.12M(53.58%) | 2170.77M(41%)    | 6655(21.82%)  | 70.98%   | 90.053%  | [<font size=2>ABCPruner-90%</font>](https://drive.google.com/drive/folders/18g5spNsvL5fSHnIR9hvjk2vX53L2nD9A?usp=sharing) |
+| ResNet50   | 7.35M(71.24%)  | 944.85M(68.68%)  | 20576(25.53%) | 70.289%  | 89.631%  | [<font size=2>ABCPruner-30%</font>](https://drive.google.com/drive/folders/19qR4g5MRFCbmM7DMzLxUNRJifrhX-xgm?usp=sharing) |
+| ResNet50   | 9.1M(64.38%)   | 1295.4M(68.68%)  | 21426(19.33%) | 72.582%  | 90.19%   | [<font size=2>ABCPruner-50%</font>](https://drive.google.com/drive/folders/1LNUG0He2Idux7leL28i4pOYoWP31txsr?usp=sharing) |
+| ResNet50   | 11.24M(56.01%) | 1794.45M(56.61%) | 22348(15.86%) | 73.516%  | 91.512%  | [<font size=2>ABCPruner-70%</font>](https://drive.google.com/drive/folders/1GJ70Kcsf-ixc9sTIeTqmFlLDUE1zHiJK?usp=sharing) |
+| ResNet50   | 11.75(54.02%)  | 1890.6M(54.29%)  | 22518(15.22%) | 73.864%  | 91.687%  | [<font size=2>ABCPruner-80%</font>](https://drive.google.com/drive/folders/1Sbq1yv1BZHvx9ai57-_MO-v6pQeBjf2S?usp=sharing) |
+| ResNet50   | 18.02(29.5%)   | 2555.55M(38.21%) | 24040(9.5%)   | 74.843%  | 92.272%  | [<font size=2>ABCPruner-100%</font>](https://drive.google.com/drive/folders/1Htt_wvgC1syCJQ-qjbgAEFdAOasGmVox?usp=sharing) |
+| ResNet101  | 12.94M(70.94%) | 1975.61M(74.89%) | 41316(21.56%) | 74.683%   | 92.08%   | [<font size=2>ABCPruner-50%</font>](https://drive.google.com/drive/folders/1ACxsGeW8YmCCFOG44cCq8t_mtMoqUvzt?usp=sharing) |
+| ResNet101  | 17.72M(60.21%) | 3164.91M(59.78%) | 43168(17.19%) | 75.823%  | 92.736%  | [<font size=2>ABCPruner-80%</font>](https://drive.google.com/drive/folders/1RJPjBsB1pKJE0NL8qGD718YfGtTfLO4z?usp=sharing) |
+| ResNet152  | 15.62M(74.06%) | 2719.47M(76.57%) | 58750(22.4%)  | 76.004%  | 92.901%  | [<font size=2>ABCPruner-50%</font>](https://drive.google.com/drive/folders/1p5aU800DylH-piwekTAxSM61aLM2lW3X?usp=sharing) |
+| ResNet152  | 24.07M(60.01%) | 4309.52M(62.87%) | 62368(17.62%) | 77.115%  | 93.481%  | [<font size=2>ABCPruner-70%</font>](https://drive.google.com/drive/folders/1Z0JofwEKpPsmXrgpQqKpmAmhngb11BTw?usp=sharing) |
 </font>
 
 ## Running Code
