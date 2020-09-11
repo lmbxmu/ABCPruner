@@ -18,7 +18,8 @@ If you find ABCPruner useful in your research, please consider citing:
 @inproceedings{lin2020channel,
   title={Channel Pruning via Automatic Structure Search},
   author={Lin, Mingbao and Ji, Rongrong and Zhang, Yuxin and Zhang, Baochang and Wu, Yongjian and Tian, Yonghong},
-  booktitle={The 29th International Conference on Artificial Intelligence (IJCAI)},
+  booktitle={Proceedings of the International Joint Conference on Artificial Intelligence (IJCAI)},
+  pages={673 -- 679},
   year={2020}
 }
 ```
