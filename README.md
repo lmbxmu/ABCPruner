@@ -119,7 +119,7 @@ python bee_imagenet.py
 --arch resnet
 --cfg resnet18
 --test_only
--- gpus 0
+--gpus 0
 --honey_model ./pretrain/resnet18.pth  #path of the pre-trained model.
 --best_honey  5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 # honey is the optimal pruned structure and can be found in the training logger.     
 --best_honey_s ./pruned/resnet18_pruned.pth   # path of the pruned model. 
