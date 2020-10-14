@@ -1,4 +1,4 @@
-# Channel Pruning via Automatic Structure Search ([Link](https://arxiv.org/abs/2001.08565))
+# Channel Pruning via Automatic Structure Search ([Link](https://arxiv.org/abs/2001.08565))![]( https://visitor-badge.glitch.me/badge?page_id=lmbxmu.abcpruner).
 
 PyTorch implementation of ABCPruner (IJCAI 2020).
 
